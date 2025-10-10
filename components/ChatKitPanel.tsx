@@ -60,6 +60,7 @@ export function ChatKitPanel({
   console.log("[ChatKitPanel] 3. isInitializingSession state created");
   
   const isMountedRef = useRef(true);
+  const isInitializingRef = useRef(false); // Lock to prevent concurrent calls
   console.log("[ChatKitPanel] 4. isMountedRef created");
   
   const [scriptStatus, setScriptStatus] = useState<
@@ -175,7 +176,16 @@ export function ChatKitPanel({
 
   const getClientSecret = useCallback(
     async (currentSecret: string | null) => {
-      console.log("[getClientSecret] 🔵 CALLED", { currentSecret: !!currentSecret });
+      console.log("[getClientSecret] 🔵 CALLED", { 
+        currentSecret: !!currentSecret,
+        isAlreadyInitializing: isInitializingRef.current 
+      });
+      
+      // Prevent concurrent calls
+      if (isInitializingRef.current) {
+        console.log("[getClientSecret] 🚫 Already initializing, skipping");
+        throw new Error("Session initialization already in progress");
+      }
       
       if (!isWorkflowConfigured) {
         console.log("[getClientSecret] ❌ Workflow not configured");
@@ -190,7 +200,8 @@ export function ChatKitPanel({
 
       if (isMountedRef.current) {
         if (!currentSecret) {
-          console.log("[getClientSecret] 🟡 Setting isInitializingSession = true");
+          console.log("[getClientSecret] 🟡 Setting isInitializingSession = true & lock");
+          isInitializingRef.current = true; // Set lock
           setIsInitializingSession(true);
         }
         setErrorState({ session: null, integration: null, retryable: false });
@@ -260,7 +271,8 @@ export function ChatKitPanel({
           currentSecret: !!currentSecret 
         });
         if (isMountedRef.current && !currentSecret) {
-          console.log("[getClientSecret] 🟢 Setting isInitializingSession = FALSE");
+          console.log("[getClientSecret] 🟢 Setting isInitializingSession = FALSE & releasing lock");
+          isInitializingRef.current = false; // Release lock
           setIsInitializingSession(false);
         } else {
           console.log("[getClientSecret] ⚠️ NOT setting isInitializingSession to false", {
