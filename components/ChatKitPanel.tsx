@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChatKit, useChatKit } from "@openai/chatkit-react";
 import {
   STARTER_PROMPTS,
@@ -175,6 +175,7 @@ export function ChatKitPanel({
 
   const getClientSecret = useCallback(
     async (currentSecret: string | null) => {
+      console.log("[getClientSecret] Called", { currentSecret: !!currentSecret });
       if (isDev) {
         console.info("[ChatKitPanel] getClientSecret invoked", {
           currentSecretPresent: Boolean(currentSecret),
@@ -275,37 +276,38 @@ export function ChatKitPanel({
     isWorkflowConfigured 
   });
 
-  const chatkit = useChatKit({
-    api: { getClientSecret },
-    theme: {
+  const themeConfig = useMemo(() => {
+    const isDarkTheme = theme === "dark";
+    return {
       colorScheme: theme,
       color: {
         grayscale: {
           hue: 220,
           tint: 6,
-          shade: theme === "dark" ? -1 : -4,
+          shade: isDarkTheme ? -1 : -4,
         },
         accent: {
-          primary: theme === "dark" ? "#f1f5f9" : "#0f172a",
+          primary: isDarkTheme ? "#f1f5f9" : "#0f172a",
           level: 1,
         },
       },
       radius: "round",
-    },
-    startScreen: {
-      greeting: GREETING,
-      prompts: STARTER_PROMPTS,
-    },
-    composer: {
-      placeholder: PLACEHOLDER_INPUT,
-    },
-    threadItemActions: {
-      feedback: false,
-    },
-    onClientTool: async (invocation: {
-      name: string;
-      params: Record<string, unknown>;
-    }) => {
+    } as const;
+  }, [theme]);
+
+  const startScreenConfig = useMemo(() => ({
+    greeting: GREETING,
+    prompts: STARTER_PROMPTS,
+  }), []);
+
+  const composerConfig = useMemo(() => ({
+    placeholder: PLACEHOLDER_INPUT,
+  }), []);
+
+  const onClientTool = useCallback(async (invocation: {
+    name: string;
+    params: Record<string, unknown>;
+  }) => {
       if (invocation.name === "switch_theme") {
         const requested = invocation.params.theme;
         if (requested === "light" || requested === "dark") {
@@ -334,21 +336,39 @@ export function ChatKitPanel({
       }
 
       return { success: false };
+    }, [onWidgetAction, onThemeRequest, processedFacts]);
+
+  const onResponseEndCallback = useCallback(() => {
+    onResponseEnd();
+  }, [onResponseEnd]);
+
+  const onResponseStartCallback = useCallback(() => {
+    setErrorState({ integration: null, retryable: false });
+  }, [setErrorState]);
+
+  const onThreadChangeCallback = useCallback(() => {
+    processedFacts.current.clear();
+  }, []);
+
+  const onErrorCallback = useCallback(({ error }: { error: unknown }) => {
+    // Note that Chatkit UI handles errors for your users.
+    // Thus, your app code doesn't need to display errors on UI.
+    console.error("ChatKit error", error);
+  }, []);
+
+  const chatkit = useChatKit({
+    api: { getClientSecret },
+    theme: themeConfig,
+    startScreen: startScreenConfig,
+    composer: composerConfig,
+    threadItemActions: {
+      feedback: false,
     },
-    onResponseEnd: () => {
-      onResponseEnd();
-    },
-    onResponseStart: () => {
-      setErrorState({ integration: null, retryable: false });
-    },
-    onThreadChange: () => {
-      processedFacts.current.clear();
-    },
-    onError: ({ error }: { error: unknown }) => {
-      // Note that Chatkit UI handles errors for your users.
-      // Thus, your app code doesn't need to display errors on UI.
-      console.error("ChatKit error", error);
-    },
+    onClientTool,
+    onResponseEnd: onResponseEndCallback,
+    onResponseStart: onResponseStartCallback,
+    onThreadChange: onThreadChangeCallback,
+    onError: onErrorCallback,
   });
   console.log("[ChatKitPanel] 10. useChatKit returned", { 
     hasControl: Boolean(chatkit.control) 
