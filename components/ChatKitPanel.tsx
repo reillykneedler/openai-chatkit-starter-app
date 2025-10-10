@@ -333,15 +333,15 @@ export function ChatKitPanel({
   const activeError = errors.session ?? errors.integration;
   const blockingError = errors.script ?? activeError;
 
-  if (isDev) {
-    console.debug("[ChatKitPanel] render state", {
-      isInitializingSession,
-      hasControl: Boolean(chatkit.control),
-      scriptStatus,
-      hasError: Boolean(blockingError),
-      workflowId: WORKFLOW_ID,
-    });
-  }
+  // Always log in production for debugging deployment issues
+  console.debug("[ChatKitPanel] render state", {
+    isInitializingSession,
+    hasControl: Boolean(chatkit.control),
+    scriptStatus,
+    hasError: Boolean(blockingError),
+    workflowId: WORKFLOW_ID,
+    errors,
+  });
 
   return (
     <div className="relative flex h-[90vh] w-full flex-col overflow-hidden bg-white shadow-sm transition-colors dark:bg-slate-900">
