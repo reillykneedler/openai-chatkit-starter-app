@@ -51,9 +51,17 @@ export function ChatKitPanel({
   console.log("[ChatKitPanel] Component function called", { theme });
   
   const processedFacts = useRef(new Set<string>());
+  console.log("[ChatKitPanel] 1. useRef created");
+  
   const [errors, setErrors] = useState<ErrorState>(() => createInitialErrors());
+  console.log("[ChatKitPanel] 2. errors state created");
+  
   const [isInitializingSession, setIsInitializingSession] = useState(true);
+  console.log("[ChatKitPanel] 3. isInitializingSession state created");
+  
   const isMountedRef = useRef(true);
+  console.log("[ChatKitPanel] 4. isMountedRef created");
+  
   const [scriptStatus, setScriptStatus] = useState<
     "pending" | "ready" | "error"
   >(() =>
@@ -61,17 +69,22 @@ export function ChatKitPanel({
       ? "ready"
       : "pending"
   );
+  console.log("[ChatKitPanel] 5. scriptStatus state created:", scriptStatus);
+  
   const [widgetInstanceKey, setWidgetInstanceKey] = useState(0);
+  console.log("[ChatKitPanel] 6. widgetInstanceKey state created");
 
   const setErrorState = useCallback((updates: Partial<ErrorState>) => {
     setErrors((current) => ({ ...current, ...updates }));
   }, []);
+  console.log("[ChatKitPanel] 7. setErrorState callback created");
 
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
     };
   }, []);
+  console.log("[ChatKitPanel] 8. First useEffect registered");
 
   useEffect(() => {
     if (!isBrowser) {
@@ -255,6 +268,10 @@ export function ChatKitPanel({
     },
     [isWorkflowConfigured, setErrorState]
   );
+  console.log("[ChatKitPanel] 9. About to call useChatKit", { 
+    workflowId: WORKFLOW_ID,
+    isWorkflowConfigured 
+  });
 
   const chatkit = useChatKit({
     api: { getClientSecret },
@@ -330,6 +347,9 @@ export function ChatKitPanel({
       // Thus, your app code doesn't need to display errors on UI.
       console.error("ChatKit error", error);
     },
+  });
+  console.log("[ChatKitPanel] 10. useChatKit returned", { 
+    hasControl: Boolean(chatkit.control) 
   });
 
   const activeError = errors.session ?? errors.integration;
