@@ -175,16 +175,10 @@ export function ChatKitPanel({
 
   const getClientSecret = useCallback(
     async (currentSecret: string | null) => {
-      console.log("[getClientSecret] Called", { currentSecret: !!currentSecret });
-      if (isDev) {
-        console.info("[ChatKitPanel] getClientSecret invoked", {
-          currentSecretPresent: Boolean(currentSecret),
-          workflowId: WORKFLOW_ID,
-          endpoint: CREATE_SESSION_ENDPOINT,
-        });
-      }
-
+      console.log("[getClientSecret] 🔵 CALLED", { currentSecret: !!currentSecret });
+      
       if (!isWorkflowConfigured) {
+        console.log("[getClientSecret] ❌ Workflow not configured");
         const detail =
           "Set NEXT_PUBLIC_CHATKIT_WORKFLOW_ID in your .env.local file.";
         if (isMountedRef.current) {
@@ -196,12 +190,14 @@ export function ChatKitPanel({
 
       if (isMountedRef.current) {
         if (!currentSecret) {
+          console.log("[getClientSecret] 🟡 Setting isInitializingSession = true");
           setIsInitializingSession(true);
         }
         setErrorState({ session: null, integration: null, retryable: false });
       }
 
       try {
+        console.log("[getClientSecret] 📡 Fetching session...");
         const response = await fetch(CREATE_SESSION_ENDPOINT, {
           method: "POST",
           headers: {
@@ -212,15 +208,8 @@ export function ChatKitPanel({
           }),
         });
 
+        console.log("[getClientSecret] 📨 Response received:", response.status);
         const raw = await response.text();
-
-        if (isDev) {
-          console.info("[ChatKitPanel] createSession response", {
-            status: response.status,
-            ok: response.ok,
-            bodyPreview: raw.slice(0, 1600),
-          });
-        }
 
         let data: Record<string, unknown> = {};
         if (raw) {
@@ -228,7 +217,7 @@ export function ChatKitPanel({
             data = JSON.parse(raw) as Record<string, unknown>;
           } catch (parseError) {
             console.error(
-              "Failed to parse create-session response",
+              "[getClientSecret] Failed to parse create-session response",
               parseError
             );
           }
@@ -236,7 +225,7 @@ export function ChatKitPanel({
 
         if (!response.ok) {
           const detail = extractErrorDetail(data, response.statusText);
-          console.error("Create session request failed", {
+          console.error("[getClientSecret] ❌ Request failed:", {
             status: response.status,
             body: data,
           });
@@ -245,16 +234,18 @@ export function ChatKitPanel({
 
         const clientSecret = data?.client_secret as string | undefined;
         if (!clientSecret) {
+          console.error("[getClientSecret] ❌ Missing client secret");
           throw new Error("Missing client secret in response");
         }
 
+        console.log("[getClientSecret] ✅ Got client secret");
         if (isMountedRef.current) {
           setErrorState({ session: null, integration: null });
         }
 
         return clientSecret;
       } catch (error) {
-        console.error("Failed to create ChatKit session", error);
+        console.error("[getClientSecret] ❌ CATCH block:", error);
         const detail =
           error instanceof Error
             ? error.message
@@ -264,8 +255,18 @@ export function ChatKitPanel({
         }
         throw error instanceof Error ? error : new Error(detail);
       } finally {
+        console.log("[getClientSecret] 🏁 FINALLY block", { 
+          isMounted: isMountedRef.current, 
+          currentSecret: !!currentSecret 
+        });
         if (isMountedRef.current && !currentSecret) {
+          console.log("[getClientSecret] 🟢 Setting isInitializingSession = FALSE");
           setIsInitializingSession(false);
+        } else {
+          console.log("[getClientSecret] ⚠️ NOT setting isInitializingSession to false", {
+            isMounted: isMountedRef.current,
+            hasCurrentSecret: !!currentSecret
+          });
         }
       }
     },
