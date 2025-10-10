@@ -14,16 +14,15 @@ export default function ChatPage() {
   const chatbotId = params.id as string;
   const chatbot = CHATBOTS_MAP[chatbotId];
 
+  // Debug logging
+  console.log("[ChatPage] Rendering", { chatbotId, chatbot, scheme });
+
   const handleWidgetAction = useCallback(async (action: FactAction) => {
-    if (process.env.NODE_ENV !== "production") {
-      console.info("[ChatKitPanel] widget action", action);
-    }
+    console.info("[ChatKitPanel] widget action", action);
   }, []);
 
   const handleResponseEnd = useCallback(() => {
-    if (process.env.NODE_ENV !== "production") {
-      console.debug("[ChatKitPanel] response end");
-    }
+    console.debug("[ChatKitPanel] response end");
   }, []);
 
   if (!chatbot) {
@@ -43,6 +42,8 @@ export default function ChatPage() {
       </main>
     );
   }
+
+  console.log("[ChatPage] About to render main with ChatKitPanel");
 
   return (
     <main className="flex min-h-screen flex-col bg-slate-100 dark:bg-slate-950">
