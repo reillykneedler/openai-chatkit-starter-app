@@ -276,24 +276,24 @@ export function ChatKitPanel({
     isWorkflowConfigured 
   });
 
+  // SIMPLIFIED FIXED THEME FOR TESTING
   const themeConfig = useMemo(() => {
-    const isDarkTheme = theme === "dark";
     return {
-      colorScheme: theme,
+      colorScheme: "light" as const,
       color: {
         grayscale: {
           hue: 220,
           tint: 6,
-          shade: isDarkTheme ? -1 : -4,
+          shade: -4,
         },
         accent: {
-          primary: isDarkTheme ? "#f1f5f9" : "#0f172a",
+          primary: "#0f172a",
           level: 1,
         },
       },
       radius: "round",
     } as const;
-  }, [theme]);
+  }, []); // No dependencies - truly static
 
   const startScreenConfig = useMemo(() => ({
     greeting: GREETING,
@@ -308,17 +308,18 @@ export function ChatKitPanel({
     name: string;
     params: Record<string, unknown>;
   }) => {
-      if (invocation.name === "switch_theme") {
-        const requested = invocation.params.theme;
-        if (requested === "light" || requested === "dark") {
-          if (isDev) {
-            console.debug("[ChatKitPanel] switch_theme", requested);
-          }
-          onThemeRequest(requested);
-          return { success: true };
-        }
-        return { success: false };
-      }
+      // THEME SWITCHING DISABLED FOR TESTING
+      // if (invocation.name === "switch_theme") {
+      //   const requested = invocation.params.theme;
+      //   if (requested === "light" || requested === "dark") {
+      //     if (isDev) {
+      //       console.debug("[ChatKitPanel] switch_theme", requested);
+      //     }
+      //     onThemeRequest(requested);
+      //     return { success: true };
+      //   }
+      //   return { success: false };
+      // }
 
       if (invocation.name === "record_fact") {
         const id = String(invocation.params.fact_id ?? "");
@@ -336,7 +337,7 @@ export function ChatKitPanel({
       }
 
       return { success: false };
-    }, [onWidgetAction, onThemeRequest, processedFacts]);
+    }, [onWidgetAction, processedFacts]);
 
   const onResponseEndCallback = useCallback(() => {
     onResponseEnd();

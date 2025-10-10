@@ -11,14 +11,16 @@ let renderCount = 0;
 
 export default function ChatPage() {
   const params = useParams();
-  const { scheme, setScheme } = useColorScheme();
+  // const { scheme, setScheme } = useColorScheme();
+  const scheme = "light"; // FIXED THEME FOR TESTING
+  const setScheme = () => {}; // NO-OP
   
   const chatbotId = params.id as string;
   const chatbot = CHATBOTS_MAP[chatbotId];
 
   // Debug logging - track re-renders
   renderCount++;
-  console.log("[ChatPage] 🔄 RENDERING", { 
+  console.log("[ChatPage] 🔄 RENDERING (FIXED THEME)", { 
     chatbotId, 
     hasChatbot: !!chatbot, 
     scheme,
