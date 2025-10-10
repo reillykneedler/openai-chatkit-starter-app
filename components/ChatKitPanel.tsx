@@ -418,15 +418,30 @@ export function ChatKitPanel({
 
   console.log("[ChatKitPanel] 16. About to render, final check:", {
     hasControl: !!chatkit.control,
+    controlObject: chatkit.control,
     widgetInstanceKey,
     chatKitClassName,
+  });
+
+  // Check if web component is defined
+  const isWebComponentDefined = typeof window !== 'undefined' && window.customElements?.get('openai-chatkit');
+  console.log("[ChatKitPanel] 17. Web component check:", {
+    isWebComponentDefined: !!isWebComponentDefined,
+    scriptStatus,
   });
 
   return (
     <div className="relative flex h-[90vh] w-full flex-col overflow-hidden bg-white shadow-sm transition-colors dark:bg-slate-900" style={{ border: '2px solid red' }}>
       <div style={{ padding: '10px', background: 'yellow', color: 'black' }}>
         DEBUG: Container visible. isInit={String(isInitializingSession)}, hasControl={String(!!chatkit.control)}, className={chatKitClassName}
+        <br/>
+        WebComponent: {String(!!isWebComponentDefined)}, scriptStatus: {scriptStatus}
       </div>
+      {!isWebComponentDefined && (
+        <div style={{ padding: '20px', background: 'orange', color: 'black' }}>
+          ⚠️ WARNING: openai-chatkit web component not found! Script may not have loaded.
+        </div>
+      )}
       <ChatKit
         key={widgetInstanceKey}
         control={chatkit.control}
