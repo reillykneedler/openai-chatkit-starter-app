@@ -375,17 +375,32 @@ export function ChatKitPanel({
     hasControl: Boolean(chatkit.control) 
   });
 
+  console.log("[ChatKitPanel] 11. About to calculate errors");
   const activeError = errors.session ?? errors.integration;
+  console.log("[ChatKitPanel] 12. activeError:", activeError);
   const blockingError = errors.script ?? activeError;
+  console.log("[ChatKitPanel] 13. blockingError:", blockingError);
 
   // Always log in production for debugging deployment issues
-  console.debug("[ChatKitPanel] render state", {
+  console.log("[ChatKitPanel] ⭐ RENDER STATE ⭐", {
     isInitializingSession,
     hasControl: Boolean(chatkit.control),
     scriptStatus,
     hasError: Boolean(blockingError),
     workflowId: WORKFLOW_ID,
     errors,
+    blockingError,
+  });
+
+  console.log("[ChatKitPanel] 14. About to return JSX");
+
+  const chatKitClassName = blockingError || isInitializingSession
+    ? "pointer-events-none opacity-0"
+    : "block h-full w-full";
+  
+  console.log("[ChatKitPanel] 15. ChatKit className:", chatKitClassName, {
+    blockingError: !!blockingError,
+    isInitializingSession,
   });
 
   return (
@@ -393,11 +408,7 @@ export function ChatKitPanel({
       <ChatKit
         key={widgetInstanceKey}
         control={chatkit.control}
-        className={
-          blockingError || isInitializingSession
-            ? "pointer-events-none opacity-0"
-            : "block h-full w-full"
-        }
+        className={chatKitClassName}
       />
       <ErrorOverlay
         error={blockingError}
