@@ -1,11 +1,13 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ChatKitPanel, type FactAction } from "@/components/ChatKitPanel";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { CHATBOTS_MAP } from "@/lib/chatbots";
+
+let renderCount = 0;
 
 export default function ChatPage() {
   const params = useParams();
@@ -14,8 +16,14 @@ export default function ChatPage() {
   const chatbotId = params.id as string;
   const chatbot = CHATBOTS_MAP[chatbotId];
 
-  // Debug logging
-  console.log("[ChatPage] Rendering", { chatbotId, chatbot, scheme });
+  // Debug logging - track re-renders
+  renderCount++;
+  console.log("[ChatPage] 🔄 RENDERING", { 
+    chatbotId, 
+    hasChatbot: !!chatbot, 
+    scheme,
+    renderCount
+  });
 
   const handleWidgetAction = useCallback(async (action: FactAction) => {
     console.info("[ChatKitPanel] widget action", action);
@@ -43,7 +51,10 @@ export default function ChatPage() {
     );
   }
 
-  console.log("[ChatPage] About to render main with ChatKitPanel");
+  console.log("[ChatPage] About to render main with ChatKitPanel", {
+    keyProp: chatbotId,
+    themeProp: scheme
+  });
 
   return (
     <main className="flex min-h-screen flex-col bg-slate-100 dark:bg-slate-950">

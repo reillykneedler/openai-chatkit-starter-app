@@ -80,7 +80,9 @@ export function ChatKitPanel({
   console.log("[ChatKitPanel] 7. setErrorState callback created");
 
   useEffect(() => {
+    console.log("[ChatKitPanel] ✅ COMPONENT MOUNTED");
     return () => {
+      console.log("[ChatKitPanel] ❌ COMPONENT UNMOUNTING");
       isMountedRef.current = false;
     };
   }, []);
