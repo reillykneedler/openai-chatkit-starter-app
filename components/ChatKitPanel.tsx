@@ -416,8 +416,17 @@ export function ChatKitPanel({
     isInitializingSession,
   });
 
+  console.log("[ChatKitPanel] 16. About to render, final check:", {
+    hasControl: !!chatkit.control,
+    widgetInstanceKey,
+    chatKitClassName,
+  });
+
   return (
-    <div className="relative flex h-[90vh] w-full flex-col overflow-hidden bg-white shadow-sm transition-colors dark:bg-slate-900">
+    <div className="relative flex h-[90vh] w-full flex-col overflow-hidden bg-white shadow-sm transition-colors dark:bg-slate-900" style={{ border: '2px solid red' }}>
+      <div style={{ padding: '10px', background: 'yellow', color: 'black' }}>
+        DEBUG: Container visible. isInit={String(isInitializingSession)}, hasControl={String(!!chatkit.control)}, className={chatKitClassName}
+      </div>
       <ChatKit
         key={widgetInstanceKey}
         control={chatkit.control}
