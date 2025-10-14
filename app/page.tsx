@@ -60,16 +60,10 @@ export default function Home() {
           ))}
         </div>
 
-        <div className="mt-12 text-center space-y-4">
+        <div className="mt-12 text-center">
           <p className="text-sm text-slate-500 dark:text-slate-500">
             More chatbots coming soon!
           </p>
-          <a
-            href="/test"
-            className="inline-block px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold"
-          >
-            🧪 Test Page (Hello World)
-          </a>
         </div>
       </div>
     </main>
