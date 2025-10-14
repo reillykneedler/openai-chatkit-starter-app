@@ -48,20 +48,11 @@ export function ChatKitPanel({
   onResponseEnd,
   onThemeRequest,
 }: ChatKitPanelProps) {
-  console.log("[ChatKitPanel] Component function called", { theme });
-  
   const processedFacts = useRef(new Set<string>());
-  console.log("[ChatKitPanel] 1. useRef created");
-  
   const [errors, setErrors] = useState<ErrorState>(() => createInitialErrors());
-  console.log("[ChatKitPanel] 2. errors state created");
-  
   const [isInitializingSession, setIsInitializingSession] = useState(true);
-  console.log("[ChatKitPanel] 3. isInitializingSession state created");
-  
   const isMountedRef = useRef(true);
   const isInitializingRef = useRef(false); // Lock to prevent concurrent calls
-  console.log("[ChatKitPanel] 4. isMountedRef created");
   
   const [scriptStatus, setScriptStatus] = useState<
     "pending" | "ready" | "error"
@@ -70,24 +61,20 @@ export function ChatKitPanel({
       ? "ready"
       : "pending"
   );
-  console.log("[ChatKitPanel] 5. scriptStatus state created:", scriptStatus);
   
   const [widgetInstanceKey, setWidgetInstanceKey] = useState(0);
-  console.log("[ChatKitPanel] 6. widgetInstanceKey state created");
 
   const setErrorState = useCallback((updates: Partial<ErrorState>) => {
     setErrors((current) => ({ ...current, ...updates }));
   }, []);
-  console.log("[ChatKitPanel] 7. setErrorState callback created");
 
   useEffect(() => {
-    console.log("[ChatKitPanel] ✅ COMPONENT MOUNTED");
+    if (isDev) console.log("[ChatKitPanel] Component mounted");
     return () => {
-      console.log("[ChatKitPanel] ❌ COMPONENT UNMOUNTING");
+      if (isDev) console.log("[ChatKitPanel] Component unmounting");
       isMountedRef.current = false;
     };
   }, []);
-  console.log("[ChatKitPanel] 8. First useEffect registered");
 
   useEffect(() => {
     if (!isBrowser) {
@@ -176,19 +163,21 @@ export function ChatKitPanel({
 
   const getClientSecret = useCallback(
     async (currentSecret: string | null) => {
-      console.log("[getClientSecret] 🔵 CALLED", { 
-        currentSecret: !!currentSecret,
-        isAlreadyInitializing: isInitializingRef.current 
-      });
+      if (isDev) {
+        console.log("[getClientSecret] Called", { 
+          currentSecret: !!currentSecret,
+          isAlreadyInitializing: isInitializingRef.current 
+        });
+      }
       
       // Prevent concurrent calls
       if (isInitializingRef.current) {
-        console.log("[getClientSecret] 🚫 Already initializing, skipping");
+        if (isDev) console.log("[getClientSecret] Already initializing, skipping");
         throw new Error("Session initialization already in progress");
       }
       
       if (!isWorkflowConfigured) {
-        console.log("[getClientSecret] ❌ Workflow not configured");
+        if (isDev) console.log("[getClientSecret] Workflow not configured");
         const detail =
           "Set NEXT_PUBLIC_CHATKIT_WORKFLOW_ID in your .env.local file.";
         if (isMountedRef.current) {
@@ -200,7 +189,7 @@ export function ChatKitPanel({
 
       if (isMountedRef.current) {
         if (!currentSecret) {
-          console.log("[getClientSecret] 🟡 Setting isInitializingSession = true & lock");
+          if (isDev) console.log("[getClientSecret] Initializing session");
           isInitializingRef.current = true; // Set lock
           setIsInitializingSession(true);
         }
@@ -208,7 +197,7 @@ export function ChatKitPanel({
       }
 
       try {
-        console.log("[getClientSecret] 📡 Fetching session...");
+        if (isDev) console.log("[getClientSecret] Fetching session...");
         const response = await fetch(CREATE_SESSION_ENDPOINT, {
           method: "POST",
           headers: {
@@ -219,7 +208,7 @@ export function ChatKitPanel({
           }),
         });
 
-        console.log("[getClientSecret] 📨 Response received:", response.status);
+        if (isDev) console.log("[getClientSecret] Response received:", response.status);
         const raw = await response.text();
 
         let data: Record<string, unknown> = {};
@@ -236,7 +225,7 @@ export function ChatKitPanel({
 
         if (!response.ok) {
           const detail = extractErrorDetail(data, response.statusText);
-          console.error("[getClientSecret] ❌ Request failed:", {
+          console.error("[getClientSecret] Request failed:", {
             status: response.status,
             body: data,
           });
@@ -245,18 +234,18 @@ export function ChatKitPanel({
 
         const clientSecret = data?.client_secret as string | undefined;
         if (!clientSecret) {
-          console.error("[getClientSecret] ❌ Missing client secret");
+          console.error("[getClientSecret] Missing client secret");
           throw new Error("Missing client secret in response");
         }
 
-        console.log("[getClientSecret] ✅ Got client secret");
+        if (isDev) console.log("[getClientSecret] Got client secret");
         if (isMountedRef.current) {
           setErrorState({ session: null, integration: null });
         }
 
         return clientSecret;
       } catch (error) {
-        console.error("[getClientSecret] ❌ CATCH block:", error);
+        console.error("[getClientSecret] Error:", error);
         const detail =
           error instanceof Error
             ? error.message
@@ -266,28 +255,15 @@ export function ChatKitPanel({
         }
         throw error instanceof Error ? error : new Error(detail);
       } finally {
-        console.log("[getClientSecret] 🏁 FINALLY block", { 
-          isMounted: isMountedRef.current, 
-          currentSecret: !!currentSecret 
-        });
         if (isMountedRef.current && !currentSecret) {
-          console.log("[getClientSecret] 🟢 Setting isInitializingSession = FALSE & releasing lock");
+          if (isDev) console.log("[getClientSecret] Session initialization complete");
           isInitializingRef.current = false; // Release lock
           setIsInitializingSession(false);
-        } else {
-          console.log("[getClientSecret] ⚠️ NOT setting isInitializingSession to false", {
-            isMounted: isMountedRef.current,
-            hasCurrentSecret: !!currentSecret
-          });
         }
       }
     },
     [isWorkflowConfigured, setErrorState]
   );
-  console.log("[ChatKitPanel] 9. About to call useChatKit", { 
-    workflowId: WORKFLOW_ID,
-    isWorkflowConfigured 
-  });
 
   // SIMPLIFIED FIXED THEME FOR TESTING
   const themeConfig = useMemo(() => {
@@ -384,64 +360,33 @@ export function ChatKitPanel({
     onThreadChange: onThreadChangeCallback,
     onError: onErrorCallback,
   });
-  console.log("[ChatKitPanel] 10. useChatKit returned", { 
-    hasControl: Boolean(chatkit.control) 
-  });
 
-  console.log("[ChatKitPanel] 11. About to calculate errors");
+  // Once we have control, clear the initialization state
+  useEffect(() => {
+    if (chatkit.control && isInitializingSession) {
+      if (isDev) console.log("[ChatKitPanel] ChatKit ready, clearing initialization state");
+      setIsInitializingSession(false);
+    }
+  }, [chatkit.control, isInitializingSession]);
+
   const activeError = errors.session ?? errors.integration;
-  console.log("[ChatKitPanel] 12. activeError:", activeError);
   const blockingError = errors.script ?? activeError;
-  console.log("[ChatKitPanel] 13. blockingError:", blockingError);
 
-  // Always log in production for debugging deployment issues
-  console.log("[ChatKitPanel] ⭐ RENDER STATE ⭐", {
-    isInitializingSession,
-    hasControl: Boolean(chatkit.control),
-    scriptStatus,
-    hasError: Boolean(blockingError),
-    workflowId: WORKFLOW_ID,
-    errors,
-    blockingError,
-  });
-
-  console.log("[ChatKitPanel] 14. About to return JSX");
+  if (isDev) {
+    console.log("[ChatKitPanel] Render state:", {
+      isInitializingSession,
+      hasControl: Boolean(chatkit.control),
+      scriptStatus,
+      hasError: Boolean(blockingError),
+    });
+  }
 
   const chatKitClassName = blockingError || isInitializingSession
     ? "pointer-events-none opacity-0"
     : "block h-full w-full";
-  
-  console.log("[ChatKitPanel] 15. ChatKit className:", chatKitClassName, {
-    blockingError: !!blockingError,
-    isInitializingSession,
-  });
-
-  console.log("[ChatKitPanel] 16. About to render, final check:", {
-    hasControl: !!chatkit.control,
-    controlObject: chatkit.control,
-    widgetInstanceKey,
-    chatKitClassName,
-  });
-
-  // Check if web component is defined
-  const isWebComponentDefined = typeof window !== 'undefined' && window.customElements?.get('openai-chatkit');
-  console.log("[ChatKitPanel] 17. Web component check:", {
-    isWebComponentDefined: !!isWebComponentDefined,
-    scriptStatus,
-  });
 
   return (
-    <div className="relative flex h-[90vh] w-full flex-col overflow-hidden bg-white shadow-sm transition-colors dark:bg-slate-900" style={{ border: '2px solid red' }}>
-      <div style={{ padding: '10px', background: 'yellow', color: 'black' }}>
-        DEBUG: Container visible. isInit={String(isInitializingSession)}, hasControl={String(!!chatkit.control)}, className={chatKitClassName}
-        <br/>
-        WebComponent: {String(!!isWebComponentDefined)}, scriptStatus: {scriptStatus}
-      </div>
-      {!isWebComponentDefined && (
-        <div style={{ padding: '20px', background: 'orange', color: 'black' }}>
-          ⚠️ WARNING: openai-chatkit web component not found! Script may not have loaded.
-        </div>
-      )}
+    <div className="relative flex h-[90vh] w-full flex-col overflow-hidden bg-white shadow-sm transition-colors dark:bg-slate-900">
       <ChatKit
         key={widgetInstanceKey}
         control={chatkit.control}
