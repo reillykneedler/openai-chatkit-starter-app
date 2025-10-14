@@ -165,14 +165,16 @@ export function ChatKitPanel({
 
   const getClientSecret = useCallback(
     async (currentSecret: string | null) => {
-      console.log("[getClientSecret] Called", { 
-        currentSecret: !!currentSecret,
-        isAlreadyInitializing: isInitializingRef.current 
-      });
+      if (isDev) {
+        console.log("[getClientSecret] Called", { 
+          currentSecret: !!currentSecret,
+          isAlreadyInitializing: isInitializingRef.current 
+        });
+      }
       
       // Prevent concurrent calls
       if (isInitializingRef.current) {
-        console.log("[getClientSecret] Already initializing, skipping");
+        if (isDev) console.log("[getClientSecret] Already initializing, skipping");
         throw new Error("Session initialization already in progress");
       }
       
@@ -190,18 +192,18 @@ export function ChatKitPanel({
       if (isMountedRef.current) {
         if (!currentSecret && !hasControlRef.current) {
           // Only set initializing state if we haven't gotten control yet
-          console.log("[getClientSecret] Initializing session, setting lock and state to true");
+          if (isDev) console.log("[getClientSecret] Initializing session, setting lock and state to true");
           isInitializingRef.current = true; // Set lock
           setIsInitializingSession(true);
         } else if (!currentSecret) {
-          console.log("[getClientSecret] Session fetch but already have control, not hiding UI");
+          if (isDev) console.log("[getClientSecret] Session fetch but already have control, not hiding UI");
           isInitializingRef.current = true; // Still set lock to prevent concurrent calls
         }
         setErrorState({ session: null, integration: null, retryable: false });
       }
 
       try {
-        console.log("[getClientSecret] Fetching session...");
+        if (isDev) console.log("[getClientSecret] Fetching session...");
         const response = await fetch(CREATE_SESSION_ENDPOINT, {
           method: "POST",
           headers: {
@@ -212,7 +214,7 @@ export function ChatKitPanel({
           }),
         });
 
-        console.log("[getClientSecret] Response received:", response.status);
+        if (isDev) console.log("[getClientSecret] Response received:", response.status);
         const raw = await response.text();
 
         let data: Record<string, unknown> = {};
@@ -242,7 +244,7 @@ export function ChatKitPanel({
           throw new Error("Missing client secret in response");
         }
 
-        console.log("[getClientSecret] Got client secret successfully");
+        if (isDev) console.log("[getClientSecret] Got client secret successfully");
         if (isMountedRef.current) {
           setErrorState({ session: null, integration: null });
         }
@@ -259,25 +261,23 @@ export function ChatKitPanel({
         }
         throw error instanceof Error ? error : new Error(detail);
       } finally {
-        console.log("[getClientSecret] Finally block - about to clear initialization state", {
-          isMounted: isMountedRef.current,
-          hasCurrentSecret: !!currentSecret,
-          hasControl: hasControlRef.current
-        });
+        if (isDev) {
+          console.log("[getClientSecret] Finally block - about to clear initialization state", {
+            isMounted: isMountedRef.current,
+            hasCurrentSecret: !!currentSecret,
+            hasControl: hasControlRef.current
+          });
+        }
         if (isMountedRef.current && !currentSecret) {
-          console.log("[getClientSecret] Releasing lock");
+          if (isDev) console.log("[getClientSecret] Releasing lock");
           isInitializingRef.current = false; // Always release lock
           // Only clear isInitializingSession if we set it (i.e., we didn't have control yet)
           if (!hasControlRef.current) {
-            console.log("[getClientSecret] Clearing initialization state");
+            if (isDev) console.log("[getClientSecret] Clearing initialization state");
             setIsInitializingSession(false);
           } else {
-            console.log("[getClientSecret] Already have control, not clearing initialization state");
+            if (isDev) console.log("[getClientSecret] Already have control, not clearing initialization state");
           }
-        } else {
-          console.log("[getClientSecret] NOT clearing state", {
-            reason: !isMountedRef.current ? "not mounted" : "has current secret"
-          });
         }
       }
     },
@@ -384,7 +384,7 @@ export function ChatKitPanel({
   useEffect(() => {
     if (chatkit.control && !hasControlRef.current) {
       hasControlRef.current = true;
-      console.log("[ChatKitPanel] ChatKit ready, clearing initialization state");
+      if (isDev) console.log("[ChatKitPanel] ChatKit ready, clearing initialization state");
       if (isInitializingSession) {
         setIsInitializingSession(false);
       }
@@ -394,16 +394,15 @@ export function ChatKitPanel({
   const activeError = errors.session ?? errors.integration;
   const blockingError = errors.script ?? activeError;
 
-  // Temporary production debugging
-  console.log("[ChatKitPanel] Render state:", {
-    isInitializingSession,
-    hasControl: Boolean(chatkit.control),
-    hasControlRef: hasControlRef.current,
-    scriptStatus,
-    hasError: Boolean(blockingError),
-    blockingError,
-    errors,
-  });
+  if (isDev) {
+    console.log("[ChatKitPanel] Render state:", {
+      isInitializingSession,
+      hasControl: Boolean(chatkit.control),
+      hasControlRef: hasControlRef.current,
+      scriptStatus,
+      hasError: Boolean(blockingError),
+    });
+  }
 
   const chatKitClassName = blockingError || isInitializingSession
     ? "pointer-events-none opacity-0"
