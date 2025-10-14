@@ -20,6 +20,8 @@ export type FactAction = {
 
 type ChatKitPanelProps = {
   theme: ColorScheme;
+  chatbotId?: string;
+  chatSessionId?: string | null;
   onWidgetAction: (action: FactAction) => Promise<void>;
   onResponseEnd: () => void;
   onThemeRequest: (scheme: ColorScheme) => void;
@@ -44,6 +46,8 @@ const createInitialErrors = (): ErrorState => ({
 
 export function ChatKitPanel({
   theme,
+  chatbotId,
+  chatSessionId,
   onWidgetAction,
   onResponseEnd,
   onThemeRequest,
@@ -211,6 +215,8 @@ export function ChatKitPanel({
           },
           body: JSON.stringify({
             workflow: { id: WORKFLOW_ID },
+            chatbotId: chatbotId,
+            chatSessionId: chatSessionId,
           }),
         });
 
@@ -281,7 +287,7 @@ export function ChatKitPanel({
         }
       }
     },
-    [isWorkflowConfigured, setErrorState]
+    [isWorkflowConfigured, setErrorState, chatbotId, chatSessionId]
   );
 
   // SIMPLIFIED FIXED THEME FOR TESTING

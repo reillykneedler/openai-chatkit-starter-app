@@ -1,23 +1,39 @@
 import { WORKFLOW_ID } from "@/lib/config";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 interface CreateSessionRequestBody {
   workflow?: { id?: string | null } | null;
   scope?: { user_id?: string | null } | null;
   workflowId?: string | null;
+  chatbotId?: string | null;
+  chatSessionId?: string | null;
 }
 
 const DEFAULT_CHATKIT_BASE = "https://api.openai.com";
-const SESSION_COOKIE_NAME = "chatkit_session_id";
-const SESSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
 export async function POST(request: Request): Promise<Response> {
   if (request.method !== "POST") {
     return methodNotAllowedResponse();
   }
-  let sessionCookie: string | null = null;
+  
   try {
+    // Check authentication
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const userId = session.user.id;
     const openaiApiKey = process.env.OPENAI_API_KEY;
     if (!openaiApiKey) {
       return new Response(
@@ -30,24 +46,28 @@ export async function POST(request: Request): Promise<Response> {
     }
 
     const parsedBody = await safeParseJson<CreateSessionRequestBody>(request);
-    const { userId, sessionCookie: resolvedSessionCookie } = await resolveUserId(request);
-    sessionCookie = resolvedSessionCookie;
     const resolvedWorkflowId =
       parsedBody?.workflow?.id ?? parsedBody?.workflowId ?? WORKFLOW_ID;
+    const chatbotId = parsedBody?.chatbotId ?? "default";
+    const chatSessionId = parsedBody?.chatSessionId;
 
     if (process.env.NODE_ENV !== "production") {
       console.info("[create-session] handling request", {
+        userId,
         resolvedWorkflowId,
+        chatbotId,
+        chatSessionId,
         body: JSON.stringify(parsedBody),
       });
     }
 
     if (!resolvedWorkflowId) {
-      return buildJsonResponse(
-        { error: "Missing workflow id" },
-        400,
-        { "Content-Type": "application/json" },
-        sessionCookie
+      return new Response(
+        JSON.stringify({ error: "Missing workflow id" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
       );
     }
 
@@ -84,37 +104,62 @@ export async function POST(request: Request): Promise<Response> {
         statusText: upstreamResponse.statusText,
         body: upstreamJson,
       });
-      return buildJsonResponse(
-        {
+      return new Response(
+        JSON.stringify({
           error: upstreamError ?? `Failed to create session: ${upstreamResponse.statusText}`,
           details: upstreamJson,
-        },
-        upstreamResponse.status,
-        { "Content-Type": "application/json" },
-        sessionCookie
+        }),
+        {
+          status: upstreamResponse.status,
+          headers: { "Content-Type": "application/json" },
+        }
       );
     }
 
     const clientSecret = upstreamJson?.client_secret ?? null;
     const expiresAfter = upstreamJson?.expires_after ?? null;
+    const chatkitSessionId = upstreamJson?.id ?? null;
+
+    // Store or update chat session in database
+    let dbChatSession;
+    if (chatSessionId) {
+      // Update existing session
+      dbChatSession = await prisma.chatSession.update({
+        where: { id: chatSessionId },
+        data: {
+          lastAccessedAt: new Date(),
+          chatkitSessionId: chatkitSessionId,
+        },
+      });
+    } else {
+      // Create new session
+      dbChatSession = await prisma.chatSession.create({
+        data: {
+          userId,
+          chatbotId,
+          chatkitSessionId: chatkitSessionId,
+        },
+      });
+    }
+
     const responsePayload = {
       client_secret: clientSecret,
       expires_after: expiresAfter,
+      chat_session_id: dbChatSession.id,
     };
 
-    return buildJsonResponse(
-      responsePayload,
-      200,
-      { "Content-Type": "application/json" },
-      sessionCookie
-    );
+    return new Response(JSON.stringify(responsePayload), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
     console.error("Create session error", error);
-    return buildJsonResponse(
-      { error: "Unexpected error" },
-      500,
-      { "Content-Type": "application/json" },
-      sessionCookie
+    return new Response(
+      JSON.stringify({ error: "Unexpected error" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
     );
   }
 }
@@ -127,72 +172,6 @@ function methodNotAllowedResponse(): Response {
   return new Response(JSON.stringify({ error: "Method Not Allowed" }), {
     status: 405,
     headers: { "Content-Type": "application/json" },
-  });
-}
-
-async function resolveUserId(request: Request): Promise<{
-  userId: string;
-  sessionCookie: string | null;
-}> {
-  const existing = getCookieValue(request.headers.get("cookie"), SESSION_COOKIE_NAME);
-  if (existing) {
-    return { userId: existing, sessionCookie: null };
-  }
-
-  const generated = typeof crypto.randomUUID === "function"
-    ? crypto.randomUUID()
-    : Math.random().toString(36).slice(2);
-
-  return {
-    userId: generated,
-    sessionCookie: serializeSessionCookie(generated),
-  };
-}
-
-function getCookieValue(cookieHeader: string | null, name: string): string | null {
-  if (!cookieHeader) {
-    return null;
-  }
-
-  const cookies = cookieHeader.split(";");
-  for (const cookie of cookies) {
-    const [rawName, ...rest] = cookie.split("=");
-    if (!rawName || rest.length === 0) { continue; }
-    if (rawName.trim() === name) { return rest.join("=").trim(); }
-  }
-  return null;
-}
-
-function serializeSessionCookie(value: string): string {
-  const attributes = [
-    `${SESSION_COOKIE_NAME}=${encodeURIComponent(value)}`,
-    "Path=/",
-    `Max-Age=${SESSION_COOKIE_MAX_AGE}`,
-    "HttpOnly",
-    "SameSite=Lax",
-  ];
-
-  if (process.env.NODE_ENV === "production") {
-    attributes.push("Secure");
-  }
-  return attributes.join("; ");
-}
-
-function buildJsonResponse(
-  payload: unknown,
-  status: number,
-  headers: Record<string, string>,
-  sessionCookie: string | null
-): Response {
-  const responseHeaders = new Headers(headers);
-
-  if (sessionCookie) {
-    responseHeaders.append("Set-Cookie", sessionCookie);
-  }
-
-  return new Response(JSON.stringify(payload), {
-    status,
-    headers: responseHeaders,
   });
 }
 

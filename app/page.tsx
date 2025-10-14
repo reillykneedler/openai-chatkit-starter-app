@@ -1,10 +1,47 @@
 "use client";
 
 import { CHATBOTS } from "@/lib/chatbots";
+import { useSession } from "next-auth/react";
+import { UserMenu } from "@/components/UserMenu";
+import Link from "next/link";
 
 export default function Home() {
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center bg-slate-100 px-6 py-12 dark:bg-slate-950">
+        <div className="text-slate-600 dark:text-slate-400">Loading...</div>
+      </main>
+    );
+  }
+
+  if (!session) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center bg-slate-100 px-6 py-12 dark:bg-slate-950">
+        <div className="mx-auto w-full max-w-4xl text-center">
+          <h1 className="text-5xl font-bold text-slate-900 dark:text-slate-100 mb-6">
+            Welcome to AI Chat
+          </h1>
+          <p className="text-xl text-slate-600 dark:text-slate-400 mb-8">
+            Sign in to access your AI assistants and chat history
+          </p>
+          <Link
+            href="/auth/signin"
+            className="inline-block px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-lg shadow-lg"
+          >
+            Sign In with Google
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-slate-100 px-6 py-12 dark:bg-slate-950">
+      <div className="absolute top-6 right-6">
+        <UserMenu />
+      </div>
       <div className="mx-auto w-full max-w-7xl">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">
@@ -64,12 +101,20 @@ export default function Home() {
           <p className="text-sm text-slate-500 dark:text-slate-500">
             More chatbots coming soon!
           </p>
-          <a
-            href="/test"
-            className="inline-block px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold"
-          >
-            🧪 Test Page (Hello World)
-          </a>
+          <div className="flex gap-4 justify-center">
+            <Link
+              href="/chats"
+              className="inline-block px-6 py-3 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors font-semibold"
+            >
+              View Chat History
+            </Link>
+            <a
+              href="/test"
+              className="inline-block px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold"
+            >
+              🧪 Test Page (Hello World)
+            </a>
+          </div>
         </div>
       </div>
     </main>
