@@ -53,6 +53,7 @@ export function ChatKitPanel({
   const [isInitializingSession, setIsInitializingSession] = useState(true);
   const isMountedRef = useRef(true);
   const isInitializingRef = useRef(false); // Lock to prevent concurrent calls
+  const hasControlRef = useRef(false); // Track if control has been received
   
   const [scriptStatus, setScriptStatus] = useState<
     "pending" | "ready" | "error"
@@ -151,6 +152,7 @@ export function ChatKitPanel({
 
   const handleResetChat = useCallback(() => {
     processedFacts.current.clear();
+    hasControlRef.current = false; // Reset control tracking
     if (isBrowser) {
       setScriptStatus(
         window.customElements?.get("openai-chatkit") ? "ready" : "pending"
@@ -361,11 +363,14 @@ export function ChatKitPanel({
     onError: onErrorCallback,
   });
 
-  // Once we have control, clear the initialization state
+  // Once we have control, clear the initialization state (only once)
   useEffect(() => {
-    if (chatkit.control && isInitializingSession) {
+    if (chatkit.control && !hasControlRef.current) {
+      hasControlRef.current = true;
       if (isDev) console.log("[ChatKitPanel] ChatKit ready, clearing initialization state");
-      setIsInitializingSession(false);
+      if (isInitializingSession) {
+        setIsInitializingSession(false);
+      }
     }
   }, [chatkit.control, isInitializingSession]);
 
