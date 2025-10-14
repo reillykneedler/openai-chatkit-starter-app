@@ -188,10 +188,14 @@ export function ChatKitPanel({
       }
 
       if (isMountedRef.current) {
-        if (!currentSecret) {
+        if (!currentSecret && !hasControlRef.current) {
+          // Only set initializing state if we haven't gotten control yet
           console.log("[getClientSecret] Initializing session, setting lock and state to true");
           isInitializingRef.current = true; // Set lock
           setIsInitializingSession(true);
+        } else if (!currentSecret) {
+          console.log("[getClientSecret] Session fetch but already have control, not hiding UI");
+          isInitializingRef.current = true; // Still set lock to prevent concurrent calls
         }
         setErrorState({ session: null, integration: null, retryable: false });
       }
@@ -257,12 +261,19 @@ export function ChatKitPanel({
       } finally {
         console.log("[getClientSecret] Finally block - about to clear initialization state", {
           isMounted: isMountedRef.current,
-          hasCurrentSecret: !!currentSecret
+          hasCurrentSecret: !!currentSecret,
+          hasControl: hasControlRef.current
         });
         if (isMountedRef.current && !currentSecret) {
-          console.log("[getClientSecret] Clearing initialization state and releasing lock");
-          isInitializingRef.current = false; // Release lock
-          setIsInitializingSession(false);
+          console.log("[getClientSecret] Releasing lock");
+          isInitializingRef.current = false; // Always release lock
+          // Only clear isInitializingSession if we set it (i.e., we didn't have control yet)
+          if (!hasControlRef.current) {
+            console.log("[getClientSecret] Clearing initialization state");
+            setIsInitializingSession(false);
+          } else {
+            console.log("[getClientSecret] Already have control, not clearing initialization state");
+          }
         } else {
           console.log("[getClientSecret] NOT clearing state", {
             reason: !isMountedRef.current ? "not mounted" : "has current secret"
