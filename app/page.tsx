@@ -9,7 +9,7 @@ export default function Home() {
 
   return (
     <AuthWrapper>
-      <main className="relative flex min-h-screen flex-col items-center justify-center px-4 sm:px-6 py-6 sm:py-12 overflow-hidden">
+      <main className="relative flex min-h-screen flex-col items-center justify-center px-4 sm:px-6 py-8 sm:py-12 overflow-hidden">
       {/* Animated gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-amber-50/50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-100/30 via-transparent to-transparent dark:from-amber-900/10"></div>
@@ -23,7 +23,7 @@ export default function Home() {
       <div className="relative mx-auto w-full max-w-7xl z-10">
         {/* Logout button - only on homepage */}
         {session && (
-          <div className="absolute top-0 right-0 z-50">
+          <div className="absolute top-4 right-0 z-50">
             <button
               onClick={() => signOut()}
               className="flex items-center gap-2 px-3 py-2 sm:px-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 shadow-lg hover:shadow-xl text-sm font-medium text-slate-700 dark:text-slate-300"

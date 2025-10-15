@@ -76,7 +76,7 @@ export default function ChatPage() {
       <div className="absolute inset-0 bg-gradient-to-br from-white via-amber-50/20 to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950"></div>
       
       {/* Floating glass-morphic navbar */}
-      <div className="relative z-20 mx-2 sm:mx-4 mt-2 sm:mt-4 mb-1 sm:mb-2 animate-slide-up">
+      <div className="relative z-20 mx-2 sm:mx-4 mt-4 sm:mt-4 mb-1 sm:mb-2 animate-slide-up">
         <nav className="mx-auto max-w-7xl px-2 py-2 sm:px-4 sm:py-3 bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg rounded-xl sm:rounded-2xl shadow-lg border border-slate-200/50 dark:border-slate-800/50">
           <div className="flex items-center justify-between gap-4">
             {/* Back button with enhanced styling */}
