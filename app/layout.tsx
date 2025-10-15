@@ -5,7 +5,7 @@ import SessionProvider from "@/components/SessionProvider";
 
 export const metadata: Metadata = {
   title: "Wick AI Toolkit - Powerful Tools for Journalism & Marketing",
-  description: "Powerful tools to fuel powerful journalism & marketing. Access specialized AI assistants designed for content creation, research, and strategic communication.",
+  description: "Powerful tools to fuel powerful work. Access specialized AI assistants designed for content creation, research, and strategic communication.",
 };
 
 export default function RootLayout({

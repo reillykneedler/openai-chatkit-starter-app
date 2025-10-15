@@ -33,7 +33,7 @@ export default function Home() {
           </h1>
           
           <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed font-medium">
-            Powerful tools to fuel powerful journalism & marketing.
+            Powerful tools to fuel powerful work.
           </p>
         </div>
 
