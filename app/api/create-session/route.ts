@@ -38,6 +38,9 @@ export async function POST(request: Request): Promise<Response> {
     if (process.env.NODE_ENV !== "production") {
       console.info("[create-session] handling request", {
         resolvedWorkflowId,
+        parsedBodyWorkflowId: parsedBody?.workflow?.id,
+        parsedBodyWorkflowIdAlt: parsedBody?.workflowId,
+        fallbackWorkflowId: WORKFLOW_ID,
         body: JSON.stringify(parsedBody),
       });
     }
@@ -53,61 +56,83 @@ export async function POST(request: Request): Promise<Response> {
 
     const apiBase = process.env.CHATKIT_API_BASE ?? DEFAULT_CHATKIT_BASE;
     const url = `${apiBase}/v1/chatkit/sessions`;
-    const upstreamResponse = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${openaiApiKey}`,
-        "OpenAI-Beta": "chatkit_beta=v1",
-      },
-      body: JSON.stringify({
-        workflow: { id: resolvedWorkflowId },
-        user: userId,
-      }),
-    });
-
-    if (process.env.NODE_ENV !== "production") {
-      console.info("[create-session] upstream response", {
-        status: upstreamResponse.status,
-        statusText: upstreamResponse.statusText,
-      });
-    }
-
-    const upstreamJson = (await upstreamResponse.json().catch(() => ({}))) as
-      | Record<string, unknown>
-      | undefined;
-
-    if (!upstreamResponse.ok) {
-      const upstreamError = extractUpstreamError(upstreamJson);
-      console.error("OpenAI ChatKit session creation failed", {
-        status: upstreamResponse.status,
-        statusText: upstreamResponse.statusText,
-        body: upstreamJson,
-      });
-      return buildJsonResponse(
-        {
-          error: upstreamError ?? `Failed to create session: ${upstreamResponse.statusText}`,
-          details: upstreamJson,
+    
+    // Add timeout to prevent hanging requests
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    
+    try {
+      const upstreamResponse = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${openaiApiKey}`,
+          "OpenAI-Beta": "chatkit_beta=v1",
         },
-        upstreamResponse.status,
+        body: JSON.stringify({
+          workflow: { id: resolvedWorkflowId },
+          user: userId,
+        }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+      if (process.env.NODE_ENV !== "production") {
+        console.info("[create-session] upstream response", {
+          status: upstreamResponse.status,
+          statusText: upstreamResponse.statusText,
+        });
+      }
+
+      const upstreamJson = (await upstreamResponse.json().catch(() => ({}))) as
+        | Record<string, unknown>
+        | undefined;
+
+      if (!upstreamResponse.ok) {
+        const upstreamError = extractUpstreamError(upstreamJson);
+        console.error("OpenAI ChatKit session creation failed", {
+          status: upstreamResponse.status,
+          statusText: upstreamResponse.statusText,
+          body: upstreamJson,
+        });
+        return buildJsonResponse(
+          {
+            error: upstreamError ?? `Failed to create session: ${upstreamResponse.statusText}`,
+            details: upstreamJson,
+          },
+          upstreamResponse.status,
+          { "Content-Type": "application/json" },
+          sessionCookie
+        );
+      }
+
+      const clientSecret = upstreamJson?.client_secret ?? null;
+      const expiresAfter = upstreamJson?.expires_after ?? null;
+      const responsePayload = {
+        client_secret: clientSecret,
+        expires_after: expiresAfter,
+      };
+
+      return buildJsonResponse(
+        responsePayload,
+        200,
         { "Content-Type": "application/json" },
         sessionCookie
       );
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      // Handle abort/timeout errors specifically
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        console.error("Request timeout creating ChatKit session");
+        return buildJsonResponse(
+          { error: "Request timeout - please try again" },
+          504,
+          { "Content-Type": "application/json" },
+          sessionCookie
+        );
+      }
+      throw fetchError;
     }
-
-    const clientSecret = upstreamJson?.client_secret ?? null;
-    const expiresAfter = upstreamJson?.expires_after ?? null;
-    const responsePayload = {
-      client_secret: clientSecret,
-      expires_after: expiresAfter,
-    };
-
-    return buildJsonResponse(
-      responsePayload,
-      200,
-      { "Content-Type": "application/json" },
-      sessionCookie
-    );
   } catch (error) {
     console.error("Create session error", error);
     return buildJsonResponse(
@@ -158,7 +183,12 @@ function getCookieValue(cookieHeader: string | null, name: string): string | nul
   for (const cookie of cookies) {
     const [rawName, ...rest] = cookie.split("=");
     if (!rawName || rest.length === 0) { continue; }
-    if (rawName.trim() === name) { return rest.join("=").trim(); }
+    const trimmedName = rawName.trim();
+    if (trimmedName === name) {
+      const value = rest.join("=").trim();
+      // Validate that the cookie value is not empty
+      return value.length > 0 ? value : null;
+    }
   }
   return null;
 }

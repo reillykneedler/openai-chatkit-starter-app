@@ -22,14 +22,14 @@ export const CHATBOTS: Chatbot[] = [
     greeting: "Send me the business name and location to get started.",
   },
   {
-    id: "objection-coach",
-    name: "Objection Coach",
-    description: "Master sales conversations with AI-powered objection handling strategies. Get instant responses to common objections and build confidence in your pitch.",
+    id: "objections-coach",
+    name: "Objections Coach",
+    description: "Master the art of handling customer objections. Get strategic responses and coaching to overcome common sales objections effectively.",
     icon: "🎯",
-    color: "bg-amber-500",
+    color: "bg-yellow-700",
     category: "Advertising",
     workflowId: "wf_68f004636080819086d40674036907200ed2b4abbf1c03c1",
-    greeting: "What objection are you facing? Let's work through it together.",
+    greeting: "Share the objection you're facing and I'll help you craft the perfect response.",
   },
   {
     id: "campaign-builder",
@@ -65,7 +65,8 @@ export const CHATBOTS: Chatbot[] = [
     icon: "💬",
     color: "bg-slate-900",
     category: "General",
-    inDevelopment: true,
+    workflowId: "wf_68f01103f2908190a300e5260375387107ffb45d1cf62c9c",
+    greeting: "Hello! I'm here to help you with any questions or tasks. How can I assist you today?",
   },
 ];
 

@@ -4,11 +4,13 @@ import { StartScreenPrompt } from "@openai/chatkit";
 // Individual chatbots in lib/chatbots.ts can override this with their own workflow IDs
 export const WORKFLOW_ID = process.env.NEXT_PUBLIC_CHATKIT_WORKFLOW_ID?.trim() ?? "";
 
-// Debug logging to help troubleshoot (always log to debug deployment issues)
-console.log("[DEBUG] Environment variables:");
-console.log("NEXT_PUBLIC_CHATKIT_WORKFLOW_ID:", process.env.NEXT_PUBLIC_CHATKIT_WORKFLOW_ID);
-console.log("WORKFLOW_ID (processed):", WORKFLOW_ID);
-console.log("OPENAI_API_KEY present:", !!process.env.OPENAI_API_KEY);
+// Debug logging only in development to avoid exposing configuration in production
+if (process.env.NODE_ENV === "development") {
+  console.log("[DEBUG] Environment variables:");
+  console.log("NEXT_PUBLIC_CHATKIT_WORKFLOW_ID:", process.env.NEXT_PUBLIC_CHATKIT_WORKFLOW_ID);
+  console.log("WORKFLOW_ID (processed):", WORKFLOW_ID);
+  console.log("OPENAI_API_KEY present:", !!process.env.OPENAI_API_KEY);
+}
 
 export const CREATE_SESSION_ENDPOINT = "/api/create-session";
 

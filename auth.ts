@@ -46,16 +46,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   callbacks: {
     async jwt({ token, account, profile }) {
-      // Persist the OAuth access_token and user profile to the token right after signin
+      // Store user profile information in the token after signin
       if (account) {
-        token.accessToken = account.access_token;
-        token.id = profile?.sub;
+        // Note: Storing access_token is removed for security - only store if absolutely needed
+        token.id = profile?.sub ?? token.sub ?? null;
       }
       return token;
     },
     async session({ session, token }) {
-      // Send properties to the client, like an access_token and user id from a provider.
-      if (token) {
+      // Send user id to the client
+      if (token && token.id) {
         session.user.id = token.id as string;
       }
       return session;

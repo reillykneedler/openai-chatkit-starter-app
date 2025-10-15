@@ -97,6 +97,7 @@ export default function AuthWrapper({ children }: { children: ReactNode }) {
           <button
             onClick={() => signIn("google")}
             className="group relative inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-2xl hover:shadow-2xl transition-all duration-300 border-2 border-slate-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-600 font-semibold text-lg overflow-hidden hover:scale-105"
+            aria-label="Sign in with Google"
           >
             {/* Google icon */}
             <svg className="w-6 h-6" viewBox="0 0 24 24">
@@ -125,30 +126,44 @@ export default function AuthWrapper({ children }: { children: ReactNode }) {
             <button
               onClick={() => setShowAdminLogin(!showAdminLogin)}
               className="text-md text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 transition-colors underline"
+              aria-label={showAdminLogin ? "Hide admin login form" : "Show admin login form"}
+              aria-expanded={showAdminLogin}
             >
               {showAdminLogin ? "Hide" : "Admin login"}
             </button>
 
             {/* Collapsible Admin Form */}
             {showAdminLogin && (
-              <form onSubmit={handleCredentialsLogin} className="mt-4 space-y-3">
+              <form onSubmit={handleCredentialsLogin} className="mt-4 space-y-3" aria-label="Admin login form">
+                <label htmlFor="username" className="sr-only">
+                  Admin Username
+                </label>
                 <input
                   id="username"
+                  name="username"
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:border-amber-400 dark:focus:border-amber-600 text-slate-900 dark:text-slate-100 transition-colors"
                   placeholder="Admin username"
+                  aria-label="Admin username"
+                  autoComplete="username"
                   required
                 />
 
+                <label htmlFor="password" className="sr-only">
+                  Admin Password
+                </label>
                 <input
                   id="password"
+                  name="password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:border-amber-400 dark:focus:border-amber-600 text-slate-900 dark:text-slate-100 transition-colors"
                   placeholder="Admin password"
+                  aria-label="Admin password"
+                  autoComplete="current-password"
                   required
                 />
 
@@ -162,6 +177,7 @@ export default function AuthWrapper({ children }: { children: ReactNode }) {
                   type="submit"
                   disabled={isSubmitting}
                   className="w-full px-4 py-2 text-sm bg-slate-800 dark:bg-slate-700 text-white rounded-lg hover:bg-slate-700 dark:hover:bg-slate-600 transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Submit admin login"
                 >
                   {isSubmitting ? "Signing in..." : "Sign in"}
                 </button>

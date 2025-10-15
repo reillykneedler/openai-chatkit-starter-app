@@ -2,6 +2,8 @@ import Script from "next/script";
 import type { Metadata } from "next";
 import "./globals.css";
 import SessionProvider from "@/components/SessionProvider";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "Wick AI Toolkit - Powerful Tools for Journalism & Marketing",
@@ -22,7 +24,10 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <SessionProvider>{children}</SessionProvider>
+        <ErrorBoundary>
+          <SessionProvider>{children}</SessionProvider>
+        </ErrorBoundary>
+        <Analytics />
       </body>
     </html>
   );

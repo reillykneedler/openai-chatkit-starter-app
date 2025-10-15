@@ -7,32 +7,27 @@ import { ChatKitPanel, type FactAction } from "@/components/ChatKitPanel";
 import { CHATBOTS_MAP } from "@/lib/chatbots";
 import AuthWrapper from "@/components/AuthWrapper";
 
-let renderCount = 0;
-
 export default function ChatPage() {
   const params = useParams();
-  const scheme = "light"; // FIXED THEME FOR TESTING
-  const setScheme = () => {}; // NO-OP
-  
   const chatbotId = params.id as string;
   const chatbot = CHATBOTS_MAP[chatbotId];
 
-  // Debug logging - track re-renders
-  renderCount++;
-  console.log("[ChatPage] 🔄 RENDERING (FIXED THEME)", { 
-    chatbotId, 
-    hasChatbot: !!chatbot, 
-    scheme,
-    renderCount
-  });
-
   const handleWidgetAction = useCallback(async (action: FactAction) => {
-    console.info("[ChatKitPanel] widget action", action);
-  }, []);
+    console.info("[ChatPage] widget action", {
+      chatbotId,
+      chatbotName: chatbot?.name,
+      action,
+      timestamp: new Date().toISOString()
+    });
+  }, [chatbotId, chatbot?.name]);
 
   const handleResponseEnd = useCallback(() => {
-    console.debug("[ChatKitPanel] response end");
-  }, []);
+    console.debug("[ChatPage] response end", {
+      chatbotId,
+      chatbotName: chatbot?.name,
+      timestamp: new Date().toISOString()
+    });
+  }, [chatbotId, chatbot?.name]);
 
   if (!chatbot) {
     return (
@@ -73,11 +68,6 @@ export default function ChatPage() {
       </AuthWrapper>
     );
   }
-
-  console.log("[ChatPage] About to render main with ChatKitPanel", {
-    keyProp: chatbotId,
-    themeProp: scheme
-  });
 
   return (
     <AuthWrapper>
@@ -142,12 +132,10 @@ export default function ChatPage() {
         <div className="w-full max-w-6xl h-full">
           <ChatKitPanel
             key={chatbotId}
-            theme={scheme}
             workflowId={chatbot.workflowId}
             greeting={chatbot.greeting}
             onWidgetAction={handleWidgetAction}
             onResponseEnd={handleResponseEnd}
-            onThemeRequest={setScheme}
           />
         </div>
       </div>
