@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import { ReactNode, useState } from "react";
 
 export default function AuthWrapper({ children }: { children: ReactNode }) {

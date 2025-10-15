@@ -28,7 +28,8 @@ export const CHATBOTS: Chatbot[] = [
     icon: "🎯",
     color: "bg-amber-500",
     category: "Advertising",
-    inDevelopment: true,
+    workflowId: "wf_68f004636080819086d40674036907200ed2b4abbf1c03c1",
+    greeting: "What objection are you facing? Let's work through it together.",
   },
   {
     id: "campaign-builder",
