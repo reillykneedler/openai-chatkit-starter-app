@@ -62,7 +62,7 @@ export default function Home() {
           </h1>
           
           <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed font-medium px-4">
-            Powerful tools to fuel powerful work.
+            Powerful tools to fuel our powerful work.
           </p>
         </div>
 
@@ -75,67 +75,85 @@ export default function Home() {
                 Advertising Tools
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {CHATBOTS.filter(bot => bot.category === "Advertising").map((chatbot, index) => (
-                  <a
-                    key={chatbot.id}
-                    href={`/chat/${chatbot.id}`}
-                    className="group relative flex flex-col items-start p-4 sm:p-6 md:p-8 bg-white dark:bg-slate-900 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 border-2 border-slate-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-600 text-left overflow-hidden hover:scale-[1.02] animate-slide-up"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    {/* Gradient accent orb */}
-                    <div
-                      className={`absolute top-0 right-0 w-32 h-32 sm:w-40 sm:h-40 ${chatbot.color} opacity-5 group-hover:opacity-10 rounded-full -mr-16 sm:-mr-20 -mt-16 sm:-mt-20 group-hover:scale-150 transition-all duration-700 blur-2xl`}
-                    />
-                    
-                    {/* Shine effect on hover */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                    </div>
-                    
-                    <div className="relative z-10 w-full">
-                      {/* Category pill */}
-                      <div className="mb-3 sm:mb-4">
-                        <span className="inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                          {chatbot.category}
-                        </span>
+                {CHATBOTS.filter(bot => bot.category === "Advertising").map((chatbot, index) => {
+                  const CardWrapper = chatbot.inDevelopment ? 'div' : 'a';
+                  const cardProps = chatbot.inDevelopment ? {} : { href: `/chat/${chatbot.id}` };
+                  
+                  return (
+                    <CardWrapper
+                      key={chatbot.id}
+                      {...cardProps}
+                      className={`group relative flex flex-col items-start p-4 sm:p-6 md:p-8 bg-white dark:bg-slate-900 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-xl transition-all duration-500 border-2 border-slate-200 dark:border-slate-800 text-left overflow-hidden animate-slide-up ${
+                        chatbot.inDevelopment 
+                          ? 'opacity-75 cursor-not-allowed' 
+                          : 'hover:shadow-2xl hover:border-amber-400 dark:hover:border-amber-600 hover:scale-[1.02] cursor-pointer'
+                      }`}
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      {/* Gradient accent orb */}
+                      <div
+                        className={`absolute top-0 right-0 w-32 h-32 sm:w-40 sm:h-40 ${chatbot.color} opacity-5 ${!chatbot.inDevelopment && 'group-hover:opacity-10'} rounded-full -mr-16 sm:-mr-20 -mt-16 sm:-mt-20 ${!chatbot.inDevelopment && 'group-hover:scale-150'} transition-all duration-700 blur-2xl`}
+                      />
+                      
+                      {/* Shine effect on hover - only for active cards */}
+                      {!chatbot.inDevelopment && (
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                        </div>
+                      )}
+                      
+                      <div className="relative z-10 w-full">
+                        {/* Category and status pills */}
+                        <div className="mb-3 sm:mb-4 flex items-center gap-2 flex-wrap">
+                          <span className="inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                            {chatbot.category}
+                          </span>
+                          {chatbot.inDevelopment && (
+                            <span className="inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                              In Development
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Icon container with enhanced styling */}
+                        <div className={`inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 ${chatbot.color} bg-opacity-10 rounded-xl sm:rounded-2xl mb-4 sm:mb-6 text-3xl sm:text-4xl ${!chatbot.inDevelopment && 'group-hover:scale-110'} transition-transform duration-300 shadow-sm`}>
+                          {chatbot.icon}
+                        </div>
+                        
+                        <h3 className={`text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-amber-50 mb-2 sm:mb-3 ${!chatbot.inDevelopment && 'group-hover:text-amber-600 dark:group-hover:text-amber-400'} transition-colors`}>
+                          {chatbot.name}
+                        </h3>
+                        
+                        <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-4 sm:mb-6 leading-relaxed">
+                          {chatbot.description}
+                        </p>
+                        
+                        {/* Enhanced CTA button */}
+                        <div className={`flex items-center gap-2 text-xs sm:text-sm font-semibold ${chatbot.inDevelopment ? 'text-slate-400 dark:text-slate-600' : 'text-amber-600 dark:text-amber-400 group-hover:gap-3'} transition-all`}>
+                          <span>{chatbot.inDevelopment ? 'Coming Soon' : 'Start Chat'}</span>
+                          <svg
+                            className={`w-4 h-4 sm:w-5 sm:h-5 ${!chatbot.inDevelopment && 'group-hover:translate-x-1'} transition-transform`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2.5}
+                              d="M13 7l5 5m0 0l-5 5m5-5H6"
+                            />
+                          </svg>
+                        </div>
                       </div>
 
-                      {/* Icon container with enhanced styling */}
-                      <div className={`inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 ${chatbot.color} bg-opacity-10 rounded-xl sm:rounded-2xl mb-4 sm:mb-6 text-3xl sm:text-4xl group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
-                        {chatbot.icon}
-                      </div>
-                      
-                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-amber-50 mb-2 sm:mb-3 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                        {chatbot.name}
-                      </h3>
-                      
-                      <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-4 sm:mb-6 line-clamp-3 leading-relaxed">
-                        {chatbot.description}
-                      </p>
-                      
-                      {/* Enhanced CTA button */}
-                      <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-amber-600 dark:text-amber-400 group-hover:gap-3 transition-all">
-                        <span>Start Chat</span>
-                        <svg
-                          className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2.5}
-                            d="M13 7l5 5m0 0l-5 5m5-5H6"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-
-                    {/* Bottom gradient line */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </a>
-                ))}
+                      {/* Bottom gradient line - only for active cards */}
+                      {!chatbot.inDevelopment && (
+                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      )}
+                    </CardWrapper>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -147,67 +165,85 @@ export default function Home() {
                 Newsroom Tools
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {CHATBOTS.filter(bot => bot.category === "Newsroom").map((chatbot, index) => (
-                  <a
-                    key={chatbot.id}
-                    href={`/chat/${chatbot.id}`}
-                    className="group relative flex flex-col items-start p-4 sm:p-6 md:p-8 bg-white dark:bg-slate-900 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 border-2 border-slate-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-600 text-left overflow-hidden hover:scale-[1.02] animate-slide-up"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    {/* Gradient accent orb */}
-                    <div
-                      className={`absolute top-0 right-0 w-32 h-32 sm:w-40 sm:h-40 ${chatbot.color} opacity-5 group-hover:opacity-10 rounded-full -mr-16 sm:-mr-20 -mt-16 sm:-mt-20 group-hover:scale-150 transition-all duration-700 blur-2xl`}
-                    />
-                    
-                    {/* Shine effect on hover */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                    </div>
-                    
-                    <div className="relative z-10 w-full">
-                      {/* Category pill */}
-                      <div className="mb-3 sm:mb-4">
-                        <span className="inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                          {chatbot.category}
-                        </span>
+                {CHATBOTS.filter(bot => bot.category === "Newsroom").map((chatbot, index) => {
+                  const CardWrapper = chatbot.inDevelopment ? 'div' : 'a';
+                  const cardProps = chatbot.inDevelopment ? {} : { href: `/chat/${chatbot.id}` };
+                  
+                  return (
+                    <CardWrapper
+                      key={chatbot.id}
+                      {...cardProps}
+                      className={`group relative flex flex-col items-start p-4 sm:p-6 md:p-8 bg-white dark:bg-slate-900 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-xl transition-all duration-500 border-2 border-slate-200 dark:border-slate-800 text-left overflow-hidden animate-slide-up ${
+                        chatbot.inDevelopment 
+                          ? 'opacity-75 cursor-not-allowed' 
+                          : 'hover:shadow-2xl hover:border-amber-400 dark:hover:border-amber-600 hover:scale-[1.02] cursor-pointer'
+                      }`}
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      {/* Gradient accent orb */}
+                      <div
+                        className={`absolute top-0 right-0 w-32 h-32 sm:w-40 sm:h-40 ${chatbot.color} opacity-5 ${!chatbot.inDevelopment && 'group-hover:opacity-10'} rounded-full -mr-16 sm:-mr-20 -mt-16 sm:-mt-20 ${!chatbot.inDevelopment && 'group-hover:scale-150'} transition-all duration-700 blur-2xl`}
+                      />
+                      
+                      {/* Shine effect on hover - only for active cards */}
+                      {!chatbot.inDevelopment && (
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                        </div>
+                      )}
+                      
+                      <div className="relative z-10 w-full">
+                        {/* Category and status pills */}
+                        <div className="mb-3 sm:mb-4 flex items-center gap-2 flex-wrap">
+                          <span className="inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                            {chatbot.category}
+                          </span>
+                          {chatbot.inDevelopment && (
+                            <span className="inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                              In Development
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Icon container with enhanced styling */}
+                        <div className={`inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 ${chatbot.color} bg-opacity-10 rounded-xl sm:rounded-2xl mb-4 sm:mb-6 text-3xl sm:text-4xl ${!chatbot.inDevelopment && 'group-hover:scale-110'} transition-transform duration-300 shadow-sm`}>
+                          {chatbot.icon}
+                        </div>
+                        
+                        <h3 className={`text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-amber-50 mb-2 sm:mb-3 ${!chatbot.inDevelopment && 'group-hover:text-amber-600 dark:group-hover:text-amber-400'} transition-colors`}>
+                          {chatbot.name}
+                        </h3>
+                        
+                        <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-4 sm:mb-6 leading-relaxed">
+                          {chatbot.description}
+                        </p>
+                        
+                        {/* Enhanced CTA button */}
+                        <div className={`flex items-center gap-2 text-xs sm:text-sm font-semibold ${chatbot.inDevelopment ? 'text-slate-400 dark:text-slate-600' : 'text-amber-600 dark:text-amber-400 group-hover:gap-3'} transition-all`}>
+                          <span>{chatbot.inDevelopment ? 'Coming Soon' : 'Start Chat'}</span>
+                          <svg
+                            className={`w-4 h-4 sm:w-5 sm:h-5 ${!chatbot.inDevelopment && 'group-hover:translate-x-1'} transition-transform`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2.5}
+                              d="M13 7l5 5m0 0l-5 5m5-5H6"
+                            />
+                          </svg>
+                        </div>
                       </div>
 
-                      {/* Icon container with enhanced styling */}
-                      <div className={`inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 ${chatbot.color} bg-opacity-10 rounded-xl sm:rounded-2xl mb-4 sm:mb-6 text-3xl sm:text-4xl group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
-                        {chatbot.icon}
-                      </div>
-                      
-                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-amber-50 mb-2 sm:mb-3 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                        {chatbot.name}
-                      </h3>
-                      
-                      <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-4 sm:mb-6 line-clamp-3 leading-relaxed">
-                        {chatbot.description}
-                      </p>
-                      
-                      {/* Enhanced CTA button */}
-                      <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-amber-600 dark:text-amber-400 group-hover:gap-3 transition-all">
-                        <span>Start Chat</span>
-                        <svg
-                          className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2.5}
-                            d="M13 7l5 5m0 0l-5 5m5-5H6"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-
-                    {/* Bottom gradient line */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </a>
-                ))}
+                      {/* Bottom gradient line - only for active cards */}
+                      {!chatbot.inDevelopment && (
+                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      )}
+                    </CardWrapper>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -219,67 +255,85 @@ export default function Home() {
                 General Tools
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {CHATBOTS.filter(bot => bot.category === "General").map((chatbot, index) => (
-                  <a
-                    key={chatbot.id}
-                    href={`/chat/${chatbot.id}`}
-                    className="group relative flex flex-col items-start p-4 sm:p-6 md:p-8 bg-white dark:bg-slate-900 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 border-2 border-slate-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-600 text-left overflow-hidden hover:scale-[1.02] animate-slide-up"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    {/* Gradient accent orb */}
-                    <div
-                      className={`absolute top-0 right-0 w-32 h-32 sm:w-40 sm:h-40 ${chatbot.color} opacity-5 group-hover:opacity-10 rounded-full -mr-16 sm:-mr-20 -mt-16 sm:-mt-20 group-hover:scale-150 transition-all duration-700 blur-2xl`}
-                    />
-                    
-                    {/* Shine effect on hover */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                    </div>
-                    
-                    <div className="relative z-10 w-full">
-                      {/* Category pill */}
-                      <div className="mb-3 sm:mb-4">
-                        <span className="inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                          {chatbot.category}
-                        </span>
+                {CHATBOTS.filter(bot => bot.category === "General").map((chatbot, index) => {
+                  const CardWrapper = chatbot.inDevelopment ? 'div' : 'a';
+                  const cardProps = chatbot.inDevelopment ? {} : { href: `/chat/${chatbot.id}` };
+                  
+                  return (
+                    <CardWrapper
+                      key={chatbot.id}
+                      {...cardProps}
+                      className={`group relative flex flex-col items-start p-4 sm:p-6 md:p-8 bg-white dark:bg-slate-900 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-xl transition-all duration-500 border-2 border-slate-200 dark:border-slate-800 text-left overflow-hidden animate-slide-up ${
+                        chatbot.inDevelopment 
+                          ? 'opacity-75 cursor-not-allowed' 
+                          : 'hover:shadow-2xl hover:border-amber-400 dark:hover:border-amber-600 hover:scale-[1.02] cursor-pointer'
+                      }`}
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      {/* Gradient accent orb */}
+                      <div
+                        className={`absolute top-0 right-0 w-32 h-32 sm:w-40 sm:h-40 ${chatbot.color} opacity-5 ${!chatbot.inDevelopment && 'group-hover:opacity-10'} rounded-full -mr-16 sm:-mr-20 -mt-16 sm:-mt-20 ${!chatbot.inDevelopment && 'group-hover:scale-150'} transition-all duration-700 blur-2xl`}
+                      />
+                      
+                      {/* Shine effect on hover - only for active cards */}
+                      {!chatbot.inDevelopment && (
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                        </div>
+                      )}
+                      
+                      <div className="relative z-10 w-full">
+                        {/* Category and status pills */}
+                        <div className="mb-3 sm:mb-4 flex items-center gap-2 flex-wrap">
+                          <span className="inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                            {chatbot.category}
+                          </span>
+                          {chatbot.inDevelopment && (
+                            <span className="inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                              In Development
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Icon container with enhanced styling */}
+                        <div className={`inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 ${chatbot.color} bg-opacity-10 rounded-xl sm:rounded-2xl mb-4 sm:mb-6 text-3xl sm:text-4xl ${!chatbot.inDevelopment && 'group-hover:scale-110'} transition-transform duration-300 shadow-sm`}>
+                          {chatbot.icon}
+                        </div>
+                        
+                        <h3 className={`text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-amber-50 mb-2 sm:mb-3 ${!chatbot.inDevelopment && 'group-hover:text-amber-600 dark:group-hover:text-amber-400'} transition-colors`}>
+                          {chatbot.name}
+                        </h3>
+                        
+                        <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-4 sm:mb-6 leading-relaxed">
+                          {chatbot.description}
+                        </p>
+                        
+                        {/* Enhanced CTA button */}
+                        <div className={`flex items-center gap-2 text-xs sm:text-sm font-semibold ${chatbot.inDevelopment ? 'text-slate-400 dark:text-slate-600' : 'text-amber-600 dark:text-amber-400 group-hover:gap-3'} transition-all`}>
+                          <span>{chatbot.inDevelopment ? 'Coming Soon' : 'Start Chat'}</span>
+                          <svg
+                            className={`w-4 h-4 sm:w-5 sm:h-5 ${!chatbot.inDevelopment && 'group-hover:translate-x-1'} transition-transform`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2.5}
+                              d="M13 7l5 5m0 0l-5 5m5-5H6"
+                            />
+                          </svg>
+                        </div>
                       </div>
 
-                      {/* Icon container with enhanced styling */}
-                      <div className={`inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 ${chatbot.color} bg-opacity-10 rounded-xl sm:rounded-2xl mb-4 sm:mb-6 text-3xl sm:text-4xl group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
-                        {chatbot.icon}
-                      </div>
-                      
-                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-amber-50 mb-2 sm:mb-3 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                        {chatbot.name}
-                      </h3>
-                      
-                      <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-4 sm:mb-6 line-clamp-3 leading-relaxed">
-                        {chatbot.description}
-                      </p>
-                      
-                      {/* Enhanced CTA button */}
-                      <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-amber-600 dark:text-amber-400 group-hover:gap-3 transition-all">
-                        <span>Start Chat</span>
-                        <svg
-                          className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2.5}
-                            d="M13 7l5 5m0 0l-5 5m5-5H6"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-
-                    {/* Bottom gradient line */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </a>
-                ))}
+                      {/* Bottom gradient line - only for active cards */}
+                      {!chatbot.inDevelopment && (
+                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      )}
+                    </CardWrapper>
+                  );
+                })}
               </div>
             </div>
           )}

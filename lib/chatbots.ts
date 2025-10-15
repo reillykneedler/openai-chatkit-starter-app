@@ -6,16 +6,20 @@ export type Chatbot = {
   color: string;
   category: string;
   workflowId?: string;
+  inDevelopment?: boolean;
+  greeting?: string;
 };
 
 export const CHATBOTS: Chatbot[] = [
   {
-    id: "default",
-    name: "General Assistant",
-    description: "A helpful AI assistant that can answer questions, help with tasks, and provide information on various topics.",
-    icon: "💬",
-    color: "bg-slate-900",
-    category: "General",
+    id: "prospect-research",
+    name: "Prospect Research",
+    description: "Research prospective clients before your big meeting. You'll receive a business analysis and suggested talking points.",
+    icon: "🔬",
+    color: "bg-yellow-500",
+    category: "Advertising",
+    workflowId: "wf_68efd5420f7481909144b6fe71167b370dce823dce57ff5e",
+    greeting: "Send me the business name and location to get started.",
   },
   {
     id: "objection-coach",
@@ -24,6 +28,7 @@ export const CHATBOTS: Chatbot[] = [
     icon: "🎯",
     color: "bg-amber-500",
     category: "Advertising",
+    inDevelopment: true,
   },
   {
     id: "campaign-builder",
@@ -32,6 +37,7 @@ export const CHATBOTS: Chatbot[] = [
     icon: "🚀",
     color: "bg-yellow-600",
     category: "Advertising",
+    inDevelopment: true,
   },
   {
     id: "customer-needs-analysis",
@@ -40,15 +46,7 @@ export const CHATBOTS: Chatbot[] = [
     icon: "🔍",
     color: "bg-amber-600",
     category: "Advertising",
-  },
-  {
-    id: "prospect-research",
-    name: "Prospect Research",
-    description: "Research companies and contacts before meetings. Get insights on business challenges, recent news, key decision makers, and strategic talking points.",
-    icon: "🔬",
-    color: "bg-yellow-500",
-    category: "Advertising",
-    workflowId: "wf_68efd5420f7481909144b6fe71167b370dce823dce57ff5e",
+    inDevelopment: true,
   },
   {
     id: "press-release-rewriter",
@@ -57,6 +55,16 @@ export const CHATBOTS: Chatbot[] = [
     icon: "📝",
     color: "bg-slate-800",
     category: "Newsroom",
+    inDevelopment: true,
+  },
+  {
+    id: "default",
+    name: "General Assistant",
+    description: "A helpful AI assistant that can answer questions, help with tasks, and provide information on various topics.",
+    icon: "💬",
+    color: "bg-slate-900",
+    category: "General",
+    inDevelopment: true,
   },
 ];
 

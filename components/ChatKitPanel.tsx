@@ -21,6 +21,7 @@ export type FactAction = {
 type ChatKitPanelProps = {
   theme: ColorScheme;
   workflowId?: string;
+  greeting?: string;
   onWidgetAction: (action: FactAction) => Promise<void>;
   onResponseEnd: () => void;
   onThemeRequest: (scheme: ColorScheme) => void;
@@ -47,6 +48,7 @@ export function ChatKitPanel({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   theme: _theme,
   workflowId,
+  greeting,
   onWidgetAction,
   onResponseEnd,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -308,9 +310,9 @@ export function ChatKitPanel({
   }, []); // No dependencies - truly static
 
   const startScreenConfig = useMemo(() => ({
-    greeting: GREETING,
+    greeting: greeting || GREETING,
     prompts: STARTER_PROMPTS,
-  }), []);
+  }), [greeting]);
 
   const composerConfig = useMemo(() => ({
     placeholder: PLACEHOLDER_INPUT,
