@@ -10,7 +10,7 @@ interface CreateSessionRequestBody {
 
 const DEFAULT_CHATKIT_BASE = "https://api.openai.com";
 const SESSION_COOKIE_NAME = "chatkit_session_id";
-const SESSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+const SESSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
 
 export async function POST(request: Request): Promise<Response> {
   if (request.method !== "POST") {
