@@ -90,7 +90,7 @@ export default function AuthWrapper({ children }: { children: ReactNode }) {
           </h1>
 
           <p className="text-lg text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
-          Powerful tools to fuel our powerful work. <br></br>Sign in with your Google account.
+          Powerful tools to fuel our powerful work. <br></br>Sign in with your Wick Google account.
           </p>
 
           {/* Google Sign In - Primary */}
