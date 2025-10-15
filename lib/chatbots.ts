@@ -5,6 +5,7 @@ export type Chatbot = {
   icon: string;
   color: string;
   category: string;
+  workflowId?: string;
 };
 
 export const CHATBOTS: Chatbot[] = [
@@ -39,6 +40,15 @@ export const CHATBOTS: Chatbot[] = [
     icon: "🔍",
     color: "bg-amber-600",
     category: "Advertising",
+  },
+  {
+    id: "prospect-research",
+    name: "Prospect Research",
+    description: "Research companies and contacts before meetings. Get insights on business challenges, recent news, key decision makers, and strategic talking points.",
+    icon: "🔬",
+    color: "bg-yellow-500",
+    category: "Advertising",
+    workflowId: "wf_68efd5420f7481909144b6fe71167b370dce823dce57ff5e",
   },
   {
     id: "press-release-rewriter",

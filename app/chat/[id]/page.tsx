@@ -1,17 +1,15 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ChatKitPanel, type FactAction } from "@/components/ChatKitPanel";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { CHATBOTS_MAP } from "@/lib/chatbots";
 
 let renderCount = 0;
 
 export default function ChatPage() {
   const params = useParams();
-  // const { scheme, setScheme } = useColorScheme();
   const scheme = "light"; // FIXED THEME FOR TESTING
   const setScheme = () => {}; // NO-OP
   
@@ -47,7 +45,7 @@ export default function ChatPage() {
             Assistant Not Found
           </h1>
           <p className="text-slate-600 dark:text-slate-400 mb-8">
-            The assistant you're looking for doesn't exist.
+            The assistant you&apos;re looking for doesn&apos;t exist.
           </p>
           <Link
             href="/"
@@ -152,6 +150,7 @@ export default function ChatPage() {
           <ChatKitPanel
             key={chatbotId}
             theme={scheme}
+            workflowId={chatbot.workflowId}
             onWidgetAction={handleWidgetAction}
             onResponseEnd={handleResponseEnd}
             onThemeRequest={setScheme}

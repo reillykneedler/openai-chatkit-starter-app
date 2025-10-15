@@ -20,6 +20,7 @@ export type FactAction = {
 
 type ChatKitPanelProps = {
   theme: ColorScheme;
+  workflowId?: string;
   onWidgetAction: (action: FactAction) => Promise<void>;
   onResponseEnd: () => void;
   onThemeRequest: (scheme: ColorScheme) => void;
@@ -43,10 +44,13 @@ const createInitialErrors = (): ErrorState => ({
 });
 
 export function ChatKitPanel({
-  theme,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  theme: _theme,
+  workflowId,
   onWidgetAction,
   onResponseEnd,
-  onThemeRequest,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onThemeRequest: _onThemeRequest,
 }: ChatKitPanelProps) {
   const processedFacts = useRef(new Set<string>());
   const [errors, setErrors] = useState<ErrorState>(() => createInitialErrors());
@@ -210,7 +214,7 @@ export function ChatKitPanel({
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            workflow: { id: WORKFLOW_ID },
+            workflow: { id: workflowId || WORKFLOW_ID },
           }),
         });
 
@@ -281,7 +285,7 @@ export function ChatKitPanel({
         }
       }
     },
-    [isWorkflowConfigured, setErrorState]
+    [workflowId, isWorkflowConfigured, setErrorState]
   );
 
   // SIMPLIFIED FIXED THEME FOR TESTING

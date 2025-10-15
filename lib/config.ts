@@ -1,5 +1,7 @@
 import { StartScreenPrompt } from "@openai/chatkit";
 
+// Global fallback workflow ID for chatbots that don't specify their own workflowId
+// Individual chatbots in lib/chatbots.ts can override this with their own workflow IDs
 export const WORKFLOW_ID = process.env.NEXT_PUBLIC_CHATKIT_WORKFLOW_ID?.trim() ?? "";
 
 // Debug logging to help troubleshoot (always log to debug deployment issues)
