@@ -376,4 +376,3 @@ For issues related to:
 
 ---
 
-**Built with ❤️ for powerful work.**
