@@ -409,7 +409,46 @@ export function ChatKitPanel({
     : "block h-full w-full";
 
   return (
-    <div className="relative flex h-[90vh] w-full flex-col overflow-hidden bg-white shadow-sm transition-colors dark:bg-slate-900">
+    <div className="relative flex h-[90vh] w-full flex-col overflow-hidden bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-3xl shadow-2xl border-2 border-slate-200/50 dark:border-slate-800/50 transition-all duration-300">
+      {/* Subtle gradient border effect */}
+      <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-amber-500/10 via-yellow-500/5 to-amber-600/10 -z-10 blur-xl"></div>
+      
+      {/* Loading skeleton overlay */}
+      {isInitializingSession && !blockingError && (
+        <div className="absolute inset-0 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm rounded-3xl">
+          <div className="flex flex-col h-full p-6 gap-4 animate-pulse">
+            {/* Header skeleton */}
+            <div className="flex items-center gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
+              <div className="w-10 h-10 bg-slate-200 dark:bg-slate-800 rounded-full"></div>
+              <div className="flex-1 space-y-2">
+                <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-1/3"></div>
+                <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/2"></div>
+              </div>
+            </div>
+            
+            {/* Message skeletons */}
+            <div className="flex-1 space-y-4 overflow-hidden">
+              <div className="flex gap-3">
+                <div className="w-8 h-8 bg-slate-200 dark:bg-slate-800 rounded-full flex-shrink-0"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-3/4"></div>
+                  <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/2"></div>
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end">
+                <div className="w-1/2 space-y-2">
+                  <div className="h-3 bg-amber-100 dark:bg-amber-900/30 rounded"></div>
+                  <div className="h-3 bg-amber-100 dark:bg-amber-900/30 rounded w-3/4 ml-auto"></div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Input skeleton */}
+            <div className="h-12 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
+          </div>
+        </div>
+      )}
+      
       <ChatKit
         key={widgetInstanceKey}
         control={chatkit.control}
@@ -417,11 +456,7 @@ export function ChatKitPanel({
       />
       <ErrorOverlay
         error={blockingError}
-        fallbackMessage={
-          blockingError || !isInitializingSession
-            ? null
-            : "Loading assistant session..."
-        }
+        fallbackMessage={null}
         onRetry={blockingError && errors.retryable ? handleResetChat : null}
         retryLabel="Restart chat"
       />
