@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ChatKitPanel, type FactAction } from "@/components/ChatKitPanel";
 import { CHATBOTS_MAP } from "@/lib/chatbots";
+import AuthWrapper from "@/components/AuthWrapper";
 
 let renderCount = 0;
 
@@ -35,7 +36,8 @@ export default function ChatPage() {
 
   if (!chatbot) {
     return (
-      <main className="relative flex min-h-screen items-center justify-center overflow-hidden">
+      <AuthWrapper>
+        <main className="relative flex min-h-screen items-center justify-center overflow-hidden">
         {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-white via-amber-50/30 to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950"></div>
         
@@ -68,6 +70,7 @@ export default function ChatPage() {
           </Link>
         </div>
       </main>
+      </AuthWrapper>
     );
   }
 
@@ -77,7 +80,8 @@ export default function ChatPage() {
   });
 
   return (
-    <main className="relative flex min-h-screen flex-col overflow-hidden">
+    <AuthWrapper>
+      <main className="relative flex min-h-screen flex-col overflow-hidden">
       {/* Subtle gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-white via-amber-50/20 to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950"></div>
       
@@ -158,6 +162,7 @@ export default function ChatPage() {
         </div>
       </div>
     </main>
+    </AuthWrapper>
   );
 }
 

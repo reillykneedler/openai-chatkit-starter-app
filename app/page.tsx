@@ -1,10 +1,12 @@
 "use client";
 
 import { CHATBOTS } from "@/lib/chatbots";
+import AuthWrapper from "@/components/AuthWrapper";
 
 export default function Home() {
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center px-6 py-12 overflow-hidden">
+    <AuthWrapper>
+      <main className="relative flex min-h-screen flex-col items-center justify-center px-6 py-12 overflow-hidden">
       {/* Animated gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-amber-50/50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-100/30 via-transparent to-transparent dark:from-amber-900/10"></div>
@@ -267,5 +269,6 @@ export default function Home() {
         </div>
       </div>
     </main>
+    </AuthWrapper>
   );
 }
