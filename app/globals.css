@@ -183,3 +183,27 @@ body {
   -webkit-mask-composite: xor;
   mask-composite: exclude;
 }
+
+/* Ad Interest Form custom ChatKit styling */
+.ad-interest-form-wrapper openai-chatkit::part(greeting) {
+  display: none !important;
+}
+
+.ad-interest-form-wrapper openai-chatkit::part(start-screen-prompt) {
+  width: 48% !important;
+  min-width: 200px !important;
+  border: 2px solid #d97706 !important;
+  background: transparent !important;
+  color: #d97706 !important;
+  font-weight: 600 !important;
+  padding: 1rem 2rem !important;
+  border-radius: 0.75rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.ad-interest-form-wrapper openai-chatkit::part(start-screen-prompt):hover {
+  background: #d97706 !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 20px rgba(217, 119, 6, 0.3) !important;
+}

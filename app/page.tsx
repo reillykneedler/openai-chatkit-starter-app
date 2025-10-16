@@ -57,25 +57,29 @@ export default function Home() {
             Alpha Release
           </div>
           
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-100 dark:via-slate-200 dark:to-slate-100 bg-clip-text text-transparent leading-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-1 sm:mb-1 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-100 dark:via-slate-200 dark:to-slate-100 bg-clip-text text-transparent leading-tight">
             Wick AI Toolkit
           </h1>
           
-          <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed font-medium px-4">
+          <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed font-medium px-4 mb-1">
             Powerful tools to fuel our powerful work.
+          </p>
+          
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-normal animate-fade-in" style={{ animationDelay: '250ms' }}>
+            Heads up: Your conversations may be logged for quality assurance.
           </p>
         </div>
 
         {/* Organized tools by category */}
         <div className="space-y-10 sm:space-y-16 mb-8 sm:mb-12">
           {/* Advertising Tools Section */}
-          {CHATBOTS.filter(bot => bot.category === "Advertising").length > 0 && (
+          {CHATBOTS.filter(bot => bot.category === "Advertising" && bot.id !== "ad-interest-form").length > 0 && (
             <div className="animate-slide-up" style={{ animationDelay: '0ms' }}>
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-amber-50 mb-4 sm:mb-6">
                 Advertising Tools
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {CHATBOTS.filter(bot => bot.category === "Advertising").map((chatbot, index) => {
+                {CHATBOTS.filter(bot => bot.category === "Advertising" && bot.id !== "ad-interest-form").map((chatbot, index) => {
                   const CardWrapper = chatbot.inDevelopment ? 'div' : 'a';
                   const cardProps = chatbot.inDevelopment ? {} : { href: `/chat/${chatbot.id}` };
                   
@@ -159,13 +163,13 @@ export default function Home() {
           )}
 
           {/* Newsroom Tools Section */}
-          {CHATBOTS.filter(bot => bot.category === "Newsroom").length > 0 && (
+          {CHATBOTS.filter(bot => bot.category === "Newsroom" && bot.id !== "ad-interest-form").length > 0 && (
             <div className="animate-slide-up" style={{ animationDelay: '100ms' }}>
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-amber-50 mb-4 sm:mb-6">
                 Newsroom Tools
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {CHATBOTS.filter(bot => bot.category === "Newsroom").map((chatbot, index) => {
+                {CHATBOTS.filter(bot => bot.category === "Newsroom" && bot.id !== "ad-interest-form").map((chatbot, index) => {
                   const CardWrapper = chatbot.inDevelopment ? 'div' : 'a';
                   const cardProps = chatbot.inDevelopment ? {} : { href: `/chat/${chatbot.id}` };
                   
@@ -249,13 +253,13 @@ export default function Home() {
           )}
 
           {/* General Tools Section */}
-          {CHATBOTS.filter(bot => bot.category === "General").length > 0 && (
+          {CHATBOTS.filter(bot => bot.category === "General" && bot.id !== "ad-interest-form").length > 0 && (
             <div className="animate-slide-up" style={{ animationDelay: '200ms' }}>
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-amber-50 mb-4 sm:mb-6">
                 General Tools
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {CHATBOTS.filter(bot => bot.category === "General").map((chatbot, index) => {
+                {CHATBOTS.filter(bot => bot.category === "General" && bot.id !== "ad-interest-form").map((chatbot, index) => {
                   const CardWrapper = chatbot.inDevelopment ? 'div' : 'a';
                   const cardProps = chatbot.inDevelopment ? {} : { href: `/chat/${chatbot.id}` };
                   

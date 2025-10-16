@@ -32,6 +32,15 @@ export const CHATBOTS: Chatbot[] = [
     greeting: "Share the objection you're facing and I'll help you craft the perfect response.",
   },
   {
+    id: "ad-interest-form",
+    name: "Ad Interest Form",
+    description: "Collect and qualify potential customer interest for advertising opportunities. Gather key information and assess fit for advertising services.",
+    icon: "📋",
+    color: "bg-yellow-500",
+    category: "Advertising",
+    workflowId: "wf_68f0c05b19c881909b7184f39704b93904c38c7b4419bdc9",
+  },
+  {
     id: "campaign-builder",
     name: "Campaign Builder",
     description: "Design comprehensive advertising campaigns from concept to execution. Create messaging strategies, audience targeting, and multi-channel campaign plans.",

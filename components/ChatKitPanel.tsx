@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChatKit, useChatKit } from "@openai/chatkit-react";
+import { StartScreenPrompt, OpenAIChatKit } from "@openai/chatkit";
 import {
   STARTER_PROMPTS,
   PLACEHOLDER_INPUT,
@@ -17,11 +18,15 @@ export type FactAction = {
   factText: string;
 };
 
+export type ChatControl = OpenAIChatKit;
+
 type ChatKitPanelProps = {
   workflowId?: string;
   greeting?: string;
+  starterPrompts?: StartScreenPrompt[];
   onWidgetAction: (action: FactAction) => Promise<void>;
   onResponseEnd: () => void;
+  onControlReady?: (control: ChatControl) => void;
 };
 
 type ErrorState = {
@@ -44,8 +49,10 @@ const createInitialErrors = (): ErrorState => ({
 export function ChatKitPanel({
   workflowId,
   greeting,
+  starterPrompts,
   onWidgetAction,
   onResponseEnd,
+  onControlReady,
 }: ChatKitPanelProps) {
   const processedFacts = useRef(new Set<string>());
   const [errors, setErrors] = useState<ErrorState>(() => createInitialErrors());
@@ -53,6 +60,7 @@ export function ChatKitPanel({
   const isMountedRef = useRef(true);
   const isInitializingRef = useRef(false); // Lock to prevent concurrent calls
   const hasControlRef = useRef(false); // Track if control has been received
+  const chatkitInstanceRef = useRef<ChatControl | null>(null); // Store the ChatKit instance
   
   const [scriptStatus, setScriptStatus] = useState<
     "pending" | "ready" | "error"
@@ -279,9 +287,9 @@ export function ChatKitPanel({
   }, []); // No dependencies - truly static
 
   const startScreenConfig = useMemo(() => ({
-    greeting: greeting || GREETING,
-    prompts: STARTER_PROMPTS,
-  }), [greeting]);
+    greeting: greeting !== undefined ? greeting : GREETING,
+    prompts: starterPrompts || STARTER_PROMPTS,
+  }), [greeting, starterPrompts]);
 
   const composerConfig = useMemo(() => ({
     placeholder: PLACEHOLDER_INPUT,
@@ -346,15 +354,29 @@ export function ChatKitPanel({
     onError: onErrorCallback,
   });
 
-  // Once we have control, clear the initialization state (only once)
+  // Once we have control, clear the initialization state and set up instance capture
   useEffect(() => {
     if (chatkit.control && !hasControlRef.current) {
       hasControlRef.current = true;
       if (isInitializingSession) {
         setIsInitializingSession(false);
       }
+      
+      // Wrap setInstance to capture the ChatKit instance
+      const originalSetInstance = chatkit.control.setInstance;
+      chatkit.control.setInstance = (instance: OpenAIChatKit | null) => {
+        chatkitInstanceRef.current = instance;
+        
+        // Notify parent component that instance is ready
+        if (onControlReady && instance) {
+          onControlReady(instance);
+        }
+        
+        // Call the original setInstance
+        originalSetInstance.call(chatkit.control, instance);
+      };
     }
-  }, [chatkit.control, isInitializingSession]);
+  }, [chatkit.control, isInitializingSession, onControlReady]);
 
   const activeError = errors.session ?? errors.integration;
   const blockingError = errors.script ?? activeError;
